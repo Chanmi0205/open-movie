@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>focus main</title>
+    <link th:href="@{../../../static/style/site.css}" rel="stylesheet">
+    <link th:href="@{../../../static/style/set1_style.css}" rel="stylesheet">
+</head>
+<body class="set1">
+
+<div class="set1_content">
+
+    <header class="set1_header">
+
+        <h2 class="set1_header_project_name"><a th:href="@{/focus}">C.M</a></h2>
+
+        <div class="set1_header_menuList">
+
+            <div class="set1_header_menu1">
+                <a th:href="@{focus/findCinema}">영화관 좌석 미리보기</a>
+            </div>
+
+            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
+                <a th:href="@{member/signUp}" class="set1_header_menu2_signUp">회원가입</a>
+                <a th:href="@{member/login}">로그인</a>
+            </div>
+
+            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
+                <a th:href="@{member/quit}">탈퇴</a>
+                <a href="">관람 내역</a>
+                <a href="">예매 내역</a>
+                <a th:href="@{member/setting}" th:text="${session.get('loginMemberId')}">회원 ID</a>
+                <a th:href="@{member/exit}">로그아웃</a>
+            </div>
+        </div>
+
+    </header>
+
+    <main class="set1_main">
+
+        <hr>
+
+        <form class="contentSet2" th:method="post">
+
+            <div class="contentSet2_menu1">
+
+                <div class="contentSet2_menu1_aside1">
+                    <p class="contentSet2_menu1_aside1_cinemaAddress">영화관 위치</p>
+
+                    <div class="contentSet2_menu1_aside1_selectSet">
+                        <div class="contentSet2_menu1_aside1_searchSet">
+                            <select th:name="findCinemaId">
+                                <option value=""></option>
+                                <option th:each="cinema : ${cinemaList}" th:value="${cinema.cinemaId}" th:text="${cinema.cinemaName}"></option>
+                            </select>
+                            <input type="submit" value="search" class="contentSet2_menu1_aside1_searchSet_submit"/>
+                        </div>
+
+                        <input type="hidden" value="영화관 PK" readonly class="contentSet2_menu1_aside1_searchSet_cinema_address"/>
+                    </div>
+
+                </div>
+
+                <div class="contentSet2_menu1_aside2">
+                    <p class="contentSet2_menu1_aside2_room">관</p>
+                    <hr>
+                    <div class="contentSet2_menu1_aside2_roomNameList">
+                        <input type="button" th:each="cinemaRoom : ${cinemaRoomIdAndNameList}" th:value="${cinemaRoom.cinemaRoomName}"
+                               th:onclick="'findRoomSiteList(' + ${cinemaRoom.cinemaRoomId} + ')'"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contentSet2_menu2"></div>
+
+            <div class="contentSet2_menu3">
+                <p class="contentSet2_menu3_cinemaAndSiteName" th:if="${findCinema != null}"
+                   th:text="|${findCinema.cinemaAddress} ${findCinema.cinemaName}|">영화관 위치, 관 명</p>
+                <div class="siteList contentSet2_menu3_siteList" id="contentSet2_menu3_siteList">
+                </div>
+            </div>
+
+        </form>
+
+        <hr>
+
+    </main>
+
+
+    <footer class="set1_footer">
+
+        <a href="">도움말 | </a>
+        <a href="">개발자 프로필</a>
+
+    </footer>
+
+</div>
+
+    <script th:inline="javascript" language="JavaScript">
+
+        const roomList = `[[${cinemaRoomAndSiteList}]]`;
+        const changeTypeRoomList = JSON.parse(roomList);
+
+        const contentSet2_menu3_siteList = document.getElementById("contentSet2_menu3_siteList"); // 좌석을 추가할 부모 태그
+
+        function findRoomSiteList(roomName) {
+
+            contentSet2_menu3_siteList.innerHTML = '';
+
+            let changeRoomName = String(roomName);
+
+            let room = changeTypeRoomList[changeRoomName];
+
+            for (const roomSiteList of room) {
+                let site = document.createElement("div");
+                let siteName = document.createTextNode(roomSiteList);
+                site.appendChild(siteName);
+                site.classList.add(roomSiteList);
+                contentSet2_menu3_siteList.appendChild(site);
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>

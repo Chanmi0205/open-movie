@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sign up</title>
+    <link th:href="@{../static/style/set2_style.css}" rel="stylesheet">
+</head>
+
+<body class="set2">
+
+<form class="set2_content" th:object="${memberForm}" th:method="post">
+
+<header class="set2_header">
+
+        <h2 class="set2_header_project_name"><a th:href="@{/focus}">C.M</a></h2>
+        <p class="set2_header_pageName">회원가입</p>
+
+    </header>
+
+    <hr class="set2_hr1">
+
+    <div class="set2_content_menu">
+        <label for="memberId" class="memberId">아이디</label>
+        <input type="text" th:filed="*{memberId}" class="memberId_input" id="memberId" name="memberId" />
+    </div>
+
+    <div class="set2_content_menu">
+        <label for="memberName" class="memberName">닉네임</label>
+        <input type="text" th:filed="*{memberName}" class="memberName_input" id="memberName" name="memberName" />
+    </div>
+
+    <div class="set2_content_menu">
+        <label for="password" class="memberPw">비밀번호</label>
+        <input type="password" th:filed="*{password}" class="memberPw_input" id="password" name="password" />
+    </div>
+
+    <div class="set2_content_menu">
+        <label for="checkPassword" class="memberPwCheck">비밀번호 확인</label>
+        <input type="password" th:filed="*{checkPassword}" class="memberPwCheck_input" id="checkPassword" name="checkPassword" />
+    </div>
+
+    <div class="set2_content_menu">
+        <label for="phoneNum" class="memberPhoneNum">전화번호</label>
+        <input type="text" th:filed="*{phoneNum}" class="memberPhoneNum_input" id="phoneNum" name="phoneNum" />
+    </div>
+
+    <div class="set2_content_menu2" th:if="${#fields.hasErrors()}">
+        <p class="exception" th:text="${#fields.errors().get(0)}">잘못된 입력</p>
+    </div>
+
+    <div class="set2_content_menu_submit">
+        <input type="submit" value="회원가입" class="signUp_submit"/>
+    </div>
+
+    <hr class="set2_hr2">
+
+</form>
+
+</body>
+</html>

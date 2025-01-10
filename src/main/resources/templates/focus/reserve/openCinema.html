@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>focus cinema</title>
+    <link th:href="@{../static/style/set1_style.css}" rel="stylesheet">
+</head>
+<body class="set1">
+
+<div class="set1_content">
+
+    <header class="set1_header">
+
+        <h2 class="set1_header_project_name"><a th:href="@{/focus}">C.M</a></h2>
+
+        <div class="set1_header_menuList">
+
+            <div class="set1_header_menu1">
+                <a th:href="@{focus/findCinema}">영화관 좌석 미리보기</a>
+            </div>
+
+            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
+                <a th:href="@{member/signUp}" class="set1_header_menu2_signUp">회원가입</a>
+                <a th:href="@{member/login}">로그인</a>
+            </div>
+
+            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
+                <a th:href="@{member/quit}">탈퇴</a>
+                <a href="">관람 내역</a>
+                <a href="">예매 내역</a>
+                <a th:href="@{member/setting}" th:text="${session.get('loginMemberId')}">회원 ID</a>
+                <a th:href="@{member/exit}">로그아웃</a>
+            </div>
+        </div>
+
+    </header>
+
+    <main class="set2_main">
+
+        <hr>
+
+        <form class="contentSet3" th:object="${openCinemaIdAndDateForm}" th:method="post">
+
+            <div class="contentSet3_menu1">
+                <img th:src="@{../static/img/{openMoviePath}.png(openMoviePath=${openMovie.openMoviePostPath})}"/>
+                <p th:text="${openMovie.openMovieTitle}">인셉션</p>
+            </div>
+
+            <div class="contentSet3_menu2">
+
+                <div class="contentSet3_menu2_dateList" id="contentSet3_menu2_dateList">
+                    <input type="button" th:value="|${openCinema.cinemaAddress} ${openCinema.cinemaName}|"
+                           th:each="openCinema : ${openCinemaList}" th:onclick="'cinemaOpenDate(' + ${openCinema.cinemaId} + ')'" />
+                </div>
+
+                <div class="contentSet3_menu2_cinemaList" id="contentSet3_menu2_cinemaList">
+                </div>
+
+                <div class="contentSet3_menu2_exception" id="contentSet3_menu2_exception">
+                    <p class="exception" th:if="${openCinemaRoomIdNull_errorText != null}" th:text="${openCinemaRoomIdNull_errorText}">예매하실 영화관, 날짜를 선택해 주십시오.</p>
+                    <p class="exception" th:if="${reserveDateNull_errorText != null}" th:text="${reserveDateNull_errorText}">예매하실 영화관, 날짜를 선택해 주십시오.</p>
+                </div>
+
+            </div>
+
+            <div class="contentSet3_menu3">
+                <input type="button" value="뒤로" class="rollback"/>
+                <input type="submit" value="계속" class="reserveButton"/>
+            </div>
+
+        </form>
+
+        <hr>
+
+    </main>
+
+
+    <footer class="set1_footer">
+
+        <a href="">도움말 | </a>
+        <a href="">개발자 프로필</a>
+
+    </footer>
+
+</div>
+
+<!-- name 추가 -->
+<script th:inline="javascript" language="JavaScript">
+
+    const openDateList = `[[${openDateList}]]`;
+    const changeTypeOpenDateList = JSON.parse(openDateList);
+
+    const contentSet3_menu2_cinemaList = document.getElementById('contentSet3_menu2_cinemaList');
+    const contentSet3_menu2_exception = document.getElementById('contentSet3_menu2_exception');
+
+    function cinemaOpenDate(openCinema) {
+
+        contentSet3_menu2_cinemaList.innerHTML = '';
+
+        let changeOpenCinema = String(openCinema);
+        let findOpenDateList = changeTypeOpenDateList[changeOpenCinema];
+
+        let openCinemaHiddenInput = document.createElement("input");
+        openCinemaHiddenInput.type = "hidden";
+        openCinemaHiddenInput.value = changeOpenCinema;
+        openCinemaHiddenInput.name = "openCinemaRoomId";
+        contentSet3_menu2_cinemaList.insertBefore(openCinemaHiddenInput, null);
+
+        for (let findOpenDate of findOpenDateList) {
+
+            let changeFindOpenDate = String(findOpenDate);
+
+            let contentSet3_menu2_cinema = document.createElement("div");
+            contentSet3_menu2_cinema.className='contentSet3_menu2_cinema';
+
+            let openDateInput = document.createElement("input");
+            openDateInput.type = "radio";
+            openDateInput.id = changeFindOpenDate;
+            openDateInput.name = "reserveDate";
+            openDateInput.value = changeFindOpenDate;
+
+            let openDateLabel = document.createElement("label");
+            openDateLabel.for = changeFindOpenDate;
+            openDateLabel.innerText = changeFindOpenDate;
+
+            contentSet3_menu2_cinema.appendChild(openDateInput);
+            contentSet3_menu2_cinema.appendChild(openDateLabel);
+            contentSet3_menu2_cinemaList.insertBefore(contentSet3_menu2_cinema, null);
+
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
