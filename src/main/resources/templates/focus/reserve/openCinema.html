@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>focus cinema</title>
-    <link th:href="@{../static/style/set1_style.css}" rel="stylesheet">
+    <link th:href="@{/static/style/set1_style.css}" rel="stylesheet">
 </head>
 <body class="set1">
 
@@ -27,8 +27,8 @@
 
             <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
                 <a th:href="@{member/quit}">탈퇴</a>
-                <a href="">관람 내역</a>
-                <a href="">예매 내역</a>
+                <a th:href="@{/member/reserveList?openMovieTF=false}">관람 내역</a>
+                <a th:href="@{/member/reserveList?openMovieTF=true}">예매 내역</a>
                 <a th:href="@{member/setting}" th:text="${session.get('loginMemberId')}">회원 ID</a>
                 <a th:href="@{member/exit}">로그아웃</a>
             </div>
@@ -40,7 +40,7 @@
 
         <hr>
 
-        <form class="contentSet3" th:object="${openCinemaIdAndDateForm}" th:method="post">
+        <form class="contentSet3" th:method="get" th:action="@{/focus/{openMovieId}/cinema(openMovieId=${openMovieId})}">
 
             <div class="contentSet3_menu1">
                 <img th:src="@{../static/img/{openMoviePath}.png(openMoviePath=${openMovie.openMoviePostPath})}"/>
@@ -85,10 +85,9 @@
 
 </div>
 
-<!-- name 추가 -->
 <script th:inline="javascript" language="JavaScript">
 
-    const openDateList = `[[${openDateList}]]`;
+    const openDateList = `[[${openCinemaAndDateList}]]`;
     const changeTypeOpenDateList = JSON.parse(openDateList);
 
     const contentSet3_menu2_cinemaList = document.getElementById('contentSet3_menu2_cinemaList');
@@ -101,28 +100,29 @@
         let changeOpenCinema = String(openCinema);
         let findOpenDateList = changeTypeOpenDateList[changeOpenCinema];
 
+        console.log(findOpenDateList);
+
         let openCinemaHiddenInput = document.createElement("input");
         openCinemaHiddenInput.type = "hidden";
         openCinemaHiddenInput.value = changeOpenCinema;
-        openCinemaHiddenInput.name = "openCinemaRoomId";
+        openCinemaHiddenInput.name = "cinemaId";
         contentSet3_menu2_cinemaList.insertBefore(openCinemaHiddenInput, null);
 
-        for (let findOpenDate of findOpenDateList) {
-
-            let changeFindOpenDate = String(findOpenDate);
+        for (let openCinemaDateDTO of findOpenDateList) {
 
             let contentSet3_menu2_cinema = document.createElement("div");
             contentSet3_menu2_cinema.className='contentSet3_menu2_cinema';
 
             let openDateInput = document.createElement("input");
             openDateInput.type = "radio";
-            openDateInput.id = changeFindOpenDate;
+            openDateInput.id = openCinemaDateDTO.openMovieDateFormat;
             openDateInput.name = "reserveDate";
-            openDateInput.value = changeFindOpenDate;
+            openDateInput.value = openCinemaDateDTO.openMovieDateFormat;
 
             let openDateLabel = document.createElement("label");
-            openDateLabel.for = changeFindOpenDate;
-            openDateLabel.innerText = changeFindOpenDate;
+            openDateLabel.for = openCinemaDateDTO.openMovieDateFormat;
+            openDateLabel.innerText = openCinemaDateDTO.cinemaAddress
+                + " " + openCinemaDateDTO.cinemaName + " " + openCinemaDateDTO.openMovieDateFormat;
 
             contentSet3_menu2_cinema.appendChild(openDateInput);
             contentSet3_menu2_cinema.appendChild(openDateLabel);

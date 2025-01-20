@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pcm.open_movie.domain.dto.*;
-import pcm.open_movie.domain.entity.Cinema;
 import pcm.open_movie.domain.entity.OpenCinemaRoom;
 
 import java.util.List;
@@ -13,26 +12,26 @@ import java.util.List;
 @Repository
 public interface OpenCinemaRoomRepository extends JpaRepository<OpenCinemaRoom, Long> {
 
-    /*
-    @Query("SELECT DISTINCT NEW pcm.open_movie.domain.dto.OpenCinemaDTO(ocr.openMovieDate, c.cinemaName, c.cinemaAddress) " +
-            "FROM OpenCinemaRoom ocr " +
-            "JOIN FETCH CinemaRoom cr ON ocr.cinemaRoom.cinemaRoomId = cr.cinemaRoomId " +
-            "JOIN FETCH Cinema c ON cr.cinema.cinemaId = c.cinemaId " +
-            "WHERE ocr.openMovie.openMovieId = :openMovieId AND TO_CHAR(ocr.openMovieDate, 'yyyy-MM-dd') IN :openMovieDateList")
-    List<OpenCinemaDTO> findByOpenCinemaList(@Param("openMovieId") Long openMovieId, @Param("openMovieDateList") List<String> openMovieDateList);
-     */
+    @Query("SELECT DISTINCT NEW pcm.open_movie.domain.dto.OpenCinemaDTO" +
+            "(c.cinemaId, c.cinemaAddress, c.cinemaName) " +
+            "FROM OpenMovie om " +
+            "LEFT JOIN FETCH OpenCinemaRoom ocr ON om.openMovieId = ocr.openMovie.openMovieId " +
+            "LEFT JOIN FETCH CinemaRoom cr ON ocr.cinemaRoom.cinemaRoomId = cr.cinemaRoomId " +
+            "LEFT JOIN FETCH Cinema c ON cr.cinema.cinemaId = c.cinemaId " +
+            "WHERE om.openMovieId = :openMovieId")
+    List<OpenCinemaDTO> findOpenCinemaByOpenMovieId(@Param("openMovieId") Long openMovieId);
 
-    @Query("SELECT c FROM Cinema c JOIN CinemaRoom cr ON c.cinemaId = cr.cinema.cinemaId " +
-            "JOIN OpenCinemaRoom ocr ON cr.cinemaRoomId = ocr.cinemaRoom.cinemaRoomId AND ocr.openMovie.openMovieId = :openMovieId")
-    List<Cinema> findCinemaByOpenMovieId(@Param("openMovieId") Long openMovieId);
-
-    @Query("SELECT " +
-            "TO_CHAR(ocr.openMovieDate, 'yyyy-MM-dd') " +
-            "FROM OpenCinemaRoom ocr JOIN FETCH CinemaRoom cr ON ocr.cinemaRoom.cinemaRoomId = cr.cinemaRoomId " +
-            "AND cr.cinema.cinemaId IN :openCinemaId " +
-            "WHERE ocr.openMovie.openMovieId = :openMovieId " +
-            "GROUP BY cr.cinema.cinemaId, TO_CHAR(ocr.openMovieDate, 'yyyy-MM-dd')")
-    List<String> findOpenCinemaRoomCountByOpenCinemaIdList(@Param("openMovieId") Long openMovieId, @Param("openCinemaId") Long openCinemaId);
+    @Query(value =
+            "SELECT c.cinema_Id as cinemaId, c.cinema_Address as cinemaAddress, " +
+                    "c.cinema_Name as cinemaName, TO_CHAR(ocr.open_Movie_Date, 'yyyy-MM-dd') as openMovieDateFormat " +
+            "FROM Open_Movie om " +
+            "LEFT JOIN Open_Cinema_Room ocr ON om.open_Movie_Id = ocr.open_Movie_Id " +
+            "LEFT JOIN Cinema_Room cr ON ocr.cinema_Room_Id = cr.cinema_Room_Id " +
+            "LEFT JOIN Cinema c ON cr.cinema_Id = c.cinema_Id " +
+            "WHERE om.open_Movie_Id = :openMovieId " +
+            "GROUP BY cinemaId, cinemaAddress, cinemaName, openMovieDateFormat " +
+            "ORDER BY c.cinema_Id", nativeQuery = true)
+    List<Object[]> findOpenCinemaDateByOpenMovieId(@Param("openMovieId") Long openMovieId);
 
     @Query("SELECT NEW pcm.open_movie.domain.dto.OpenCinemaRoomDTO" +
             "(ocr.openMovieDate, cr.cinemaRoomName, ocr.openCinemaRoomId) " +
@@ -40,18 +39,35 @@ public interface OpenCinemaRoomRepository extends JpaRepository<OpenCinemaRoom, 
             "WHERE TO_CHAR(ocr.openMovieDate, 'yyyy-MM-dd') = :openMovieDate AND ocr.openMovie.openMovieId = :openMovieId")
     List<OpenCinemaRoomDTO> findByOpenCinemaRoomList(@Param("openMovieDate") String openMovieDate, @Param("openMovieId") Long openMovieId);
 
-    @Query("SELECT NEW pcm.open_movie.domain.dto.OpenCinemaRoomAndSiteDTO" +
-            "(ocr.openCinemaRoomId, cr.cinemaRoomName, ocr.openMovieDate, crs.cinemaRoomSiteName, mr.cinemaRoomSite.cinemaRoomSiteName) " +
+    // 조회한 관을 통해 모든 관 예매 여부
+    @Query("SELECT NEW pcm.open_movie.domain.dto.OpenCinemaRoomDateTimeDTO" +
+            "(ocr.openCinemaRoomId, ocr.cinemaRoom.cinemaRoomName, ocr.openMovieDate) " +
             "FROM CinemaRoom cr " +
-            "JOIN FETCH OpenCinemaRoom ocr ON cr.cinemaRoomId = ocr.cinemaRoom.cinemaRoomId AND TO_CHAR(ocr.openMovieDate, 'yyyy-MM-dd') = :openMovieDate " +
-            "JOIN FETCH OpenMovie om ON om.openMovieId = ocr.openMovie.openMovieId AND om.openMovieId = :openMovieId " +
-            "JOIN FETCH CinemaRoomSite crs ON crs.cinemaRoom.cinemaRoomId = ocr.cinemaRoom.cinemaRoomId " +
-            "JOIN FETCH MovieReserve mr ON mr.cinemaRoomSite.CinemaRoomSiteId = crs.CinemaRoomSiteId " +
-            "WHERE cr.cinema.cinemaId = :cinemaId")
-    List<OpenCinemaRoomAndSiteDTO> findOpenCinemaRoomAndSite
-            (@Param("openMovieId") Long openMovieId, @Param("openMovieDate") String openMovieDate, @Param("cinemaId") Long cinemaId);
+            "LEFT JOIN FETCH OpenCinemaRoom ocr ON cr.cinemaRoomId = ocr.cinemaRoom.cinemaRoomId AND TO_CHAR(ocr.openMovieDate, 'yyyy-MM-dd') = :openMovieDate " +
+            "LEFT JOIN FETCH OpenMovie om ON om.openMovieId = ocr.openMovie.openMovieId AND om.openMovieId = :openMovieId " +
+            "WHERE cr.cinema.cinemaId = :cinemaId " +
+            "ORDER BY ocr.openMovieDate")
+    List<OpenCinemaRoomDateTimeDTO> findOpenCinemaRoomList
+    (@Param("openMovieId") Long openMovieId, @Param("openMovieDate") String openMovieDate, @Param("cinemaId") Long cinemaId);
 
-    //
+    @Query("SELECT NEW pcm.open_movie.domain.dto.OpenCinemaRoomSiteStatusDTO" +
+            "(ocr.openCinemaRoomId, crs.cinemaRoomSiteName, mr.cinemaRoomSite.cinemaRoomSiteName) " +
+            "FROM OpenCinemaRoom ocr " +
+            "LEFT JOIN FETCH CinemaRoomSite crs ON ocr.cinemaRoom.cinemaRoomId = crs.cinemaRoom.cinemaRoomId " +
+            "LEFT JOIN FETCH MovieReserve mr ON ocr.openCinemaRoomId = mr.openCinemaRoom.openCinemaRoomId " +
+            "AND crs.cinemaRoom.cinemaRoomId = crs.cinemaRoom.cinemaRoomId AND crs.cinemaRoomSiteId = mr.cinemaRoomSite.cinemaRoomSiteId " +
+            "WHERE ocr.openCinemaRoomId IN :openCinemaRoomIdList")
+    List<OpenCinemaRoomSiteStatusDTO> findOpenCinemaRoomSiteStatusList(@Param("openCinemaRoomIdList") List<Long> openCinemaRoomIdList);
+
+    @Query("SELECT NEW pcm.open_movie.domain.dto.ReserveOpenCinemaRoomDTO" +
+            "(crs.cinemaRoomSiteId, crs.cinemaRoomSiteName, mr.cinemaRoomSite.cinemaRoomSiteName) " +
+            "FROM OpenCinemaRoom ocr " +
+            "LEFT JOIN FETCH CinemaRoomSite crs ON ocr.cinemaRoom.cinemaRoomId = crs.cinemaRoom.cinemaRoomId " +
+            "LEFT JOIN FETCH MovieReserve mr ON ocr.openCinemaRoomId = mr.openCinemaRoom.openCinemaRoomId " +
+            "AND crs.cinemaRoom.cinemaRoomId = crs.cinemaRoom.cinemaRoomId AND crs.cinemaRoomSiteId = mr.cinemaRoomSite.cinemaRoomSiteId " +
+            "WHERE ocr.openCinemaRoomId = :openCinemaRoomId")
+    List<ReserveOpenCinemaRoomDTO> findReserveOpenCinemaRoomList(@Param("openCinemaRoomId") Long openCinemaRoomId);
+
     @Query("SELECT NEW pcm.open_movie.domain.dto.OpenCinemaRoomSiteDTO(ocr.openCinemaRoomId, crs.cinemaRoomSiteName, mr.movieReserveId) " +
             "FROM OpenCinemaRoom ocr LEFT JOIN FETCH MovieReserve mr " +
             "ON ocr.openCinemaRoomId = mr.openCinemaRoom.openCinemaRoomId " +
@@ -68,10 +84,19 @@ public interface OpenCinemaRoomRepository extends JpaRepository<OpenCinemaRoom, 
             "WHERE ocr.openCinemaRoomId = :openCinemaRoomId")
     List<OpenCinemaRoomSiteSelectDTO> findCinemaRoomSiteListByOpenCinemaRoomId(@Param("openCinemaRoomId") Long openCinemaRoomId);
 
-    @Query("SELECT crs.CinemaRoomSiteId FROM OpenCinemaRoom ocr " +
+    @Query("SELECT crs.cinemaRoomSiteId FROM OpenCinemaRoom ocr " +
             "JOIN FETCH MovieReserve mr ON ocr.openCinemaRoomId = mr.openCinemaRoom.openCinemaRoomId " +
-            "JOIN FETCH CinemaRoomSite crs ON mr.cinemaRoomSite.CinemaRoomSiteId = crs.CinemaRoomSiteId AND crs.CinemaRoomSiteId IN :cinemaRoomSiteIdList")
+            "JOIN FETCH CinemaRoomSite crs ON mr.cinemaRoomSite.cinemaRoomSiteId = crs.cinemaRoomSiteId AND crs.cinemaRoomSiteId IN :cinemaRoomSiteIdList")
     boolean findSiteReserveTF(@Param("cinemaRoomSiteIdList") List<Long> cinemaRoomSiteIdList);
+
+    @Query("SELECT NEW pcm.open_movie.domain.dto.OpenCinemaRoomAndOpenMovieDTO" +
+            "(ocr.openCinemaRoomId, ocr.openMovieDate, c.cinemaAddress, c.cinemaName, cr.cinemaRoomName, om.openMovieTitle) " +
+            "FROM OpenCinemaRoom ocr " +
+            "LEFT JOIN FETCH CinemaRoom cr ON ocr.cinemaRoom.cinemaRoomId = cr.cinemaRoomId " +
+            "LEFT JOIN FETCH Cinema c ON cr.cinema.cinemaId = c.cinemaId " +
+            "LEFT JOIN FETCH OpenMovie om ON ocr.openMovie.openMovieId = om.openMovieId " +
+            "WHERE ocr.openCinemaRoomId = :openCinemaRoomId")
+    OpenCinemaRoomAndOpenMovieDTO findOpenCinemaRoomAndOpenMovie(@Param("openCinemaRoomId") Long openCinemaRoomId);
 
     @Query("SELECT ocr FROM OpenCinemaRoom ocr WHERE ocr.openCinemaRoomId = :openCinemaRoomId")
     OpenCinemaRoom findOpenCinemaRoomById(@Param("openCinemaRoomId") Long openCinemaRoomId);

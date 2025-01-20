@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>focus main</title>
-    <link th:href="@{../../../static/style/site.css}" rel="stylesheet">
-    <link th:href="@{../../../static/style/set1_style.css}" rel="stylesheet">
+    <link th:href="@{/static/style/set1_style.css}" rel="stylesheet">
+    <link th:href="@{/static/style/site.css}" rel="stylesheet">
 </head>
 <body class="set1">
 
@@ -28,8 +28,8 @@
 
             <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
                 <a th:href="@{member/quit}">탈퇴</a>
-                <a href="">관람 내역</a>
-                <a href="">예매 내역</a>
+                <a th:href="@{/member/reserveList?openMovieTF=false}">관람 내역</a>
+                <a th:href="@{/member/reserveList?openMovieTF=true}">예매 내역</a>
                 <a th:href="@{member/setting}" th:text="${session.get('loginMemberId')}">회원 ID</a>
                 <a th:href="@{member/exit}">로그아웃</a>
             </div>

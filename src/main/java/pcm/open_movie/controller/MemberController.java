@@ -3,17 +3,31 @@ package pcm.open_movie.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pcm.open_movie.domain.dto.MovieReserveDTO;
+import pcm.open_movie.domain.dto.MovieReserveRoomDTO;
+import pcm.open_movie.domain.dto.MovieReserveSiteDTO;
 import pcm.open_movie.domain.entity.Member;
 import pcm.open_movie.controller.form.member.MemberForm;
 import pcm.open_movie.controller.form.member.LoginMemberForm;
 import pcm.open_movie.controller.form.member.QuitMemberForm;
 import pcm.open_movie.controller.form.member.SettingMemberForm;
 import pcm.open_movie.service.MemberService;
+import pcm.open_movie.service.MovieReserveService;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static pcm.open_movie.config.SessionConst.LOGIN_MEMBER_ID;
 
@@ -23,6 +37,7 @@ import static pcm.open_movie.config.SessionConst.LOGIN_MEMBER_ID;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MovieReserveService movieReserveService;
 
     @GetMapping("/signUp")
     public String signUp(Model model) {
@@ -33,7 +48,6 @@ public class MemberController {
     @PostMapping("/signUp")
     public String signUp(@Validated @ModelAttribute(name = "memberForm") MemberForm memberForm,
                          BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI, HttpServletRequest request) {
-
 
         // 입력한 두 비밀번호가 일치하지 않을 경우
         if(!memberForm.getPassword().equals(memberForm.getCheckPassword()))
@@ -50,8 +64,6 @@ public class MemberController {
 
         HttpSession session = request.getSession(true);
         session.setAttribute(LOGIN_MEMBER_ID, joinMember.getMemberId());
-
-        System.out.println("(String) session.getAttribute(LOGIN_MEMBER_ID) = " + (String) session.getAttribute(LOGIN_MEMBER_ID));
 
         return "redirect:" + redirectURI;
 
@@ -161,7 +173,38 @@ public class MemberController {
     public String exit(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         session.removeAttribute(LOGIN_MEMBER_ID);
-        return "focus/main";
+        return "redirect:/focus";
+    }
+
+    @GetMapping("/reserveList")
+    public String reserveList(
+            @RequestParam(value = "pageNumber", defaultValue = "1") int pageNumber,
+            @RequestParam(value = "openMovieTF") boolean openMovieTF,
+            Model model, HttpServletRequest request) {
+
+        model.addAttribute("openMovieTF", openMovieTF);
+
+        int pageSize = 7;
+
+        HttpSession session = request.getSession(false);
+
+        String memberId = (String) session.getAttribute(LOGIN_MEMBER_ID);
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+
+        Page<MovieReserveRoomDTO> movieReserveRoomDTOList = movieReserveService.memberMovieReserveList(memberId, openMovieTF, pageable);
+        model.addAttribute("movieReserveRoomDTOList", movieReserveRoomDTOList);
+
+        List<Long> openCinemaRoomIdList = new ArrayList<>();
+
+        for (MovieReserveRoomDTO movieReserveRoomDTO : movieReserveRoomDTOList) {
+            openCinemaRoomIdList.add(movieReserveRoomDTO.getOpenCinemaRoomId());
+        }
+
+        Map<Long, List<MovieReserveSiteDTO>> movieReserveSiteList
+                = movieReserveService.movieReserveSiteList(memberId, openCinemaRoomIdList);
+        model.addAttribute("movieReserveSiteList", movieReserveSiteList);
+
+        return "member/reserveList";
     }
 
 }

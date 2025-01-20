@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new LoginCheckInterceptor())
                 .order(1)
                 .addPathPatterns("/member/setting", "/member/quit", "/focus/**")
-                .excludePathPatterns("resources/**", "/focus", "/focus/findCinema");
+                .excludePathPatterns("resources/**", "/focus", "/focus/findCinema", "/focus/static/**");
     }
 
 }

@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pcm.open_movie.domain.dto.*;
-import pcm.open_movie.domain.entity.Cinema;
 import pcm.open_movie.domain.entity.CinemaRoomSite;
 import pcm.open_movie.domain.entity.OpenCinemaRoom;
 import pcm.open_movie.domain.entity.OpenMovie;
@@ -17,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,51 +43,17 @@ public class OpenMovieServiceImpl implements OpenMovieService {
     }
 
     @Override
-    public List<Cinema> openCinemaList(Long openMovieId) {
-        return openCinemaRoomRepository.findCinemaByOpenMovieId(openMovieId);
+    public List<OpenCinemaDateDTO> openCinemaDateList(Long openMovieId) {
+        List<Object[]> openCinemaList = openCinemaRoomRepository.findOpenCinemaDateByOpenMovieId(openMovieId);
+        return openCinemaList.stream()
+                    .map(row -> new OpenCinemaDateDTO((Long) row[0], (String) row[1], (String) row[2], (String) row[3]))
+                    .collect(Collectors.toList());
     }
 
     @Override
-    public List<String> openCinemaRoomCount(Long openMovieId, Long openCinemaRoomId) {
-        return openCinemaRoomRepository.findOpenCinemaRoomCountByOpenCinemaIdList(openMovieId, openCinemaRoomId);
+    public List<OpenCinemaDTO> openCinemaList(Long openMovieId) {
+        return openCinemaRoomRepository.findOpenCinemaByOpenMovieId(openMovieId);
     }
-
-    /*
-    @Override
-    public Map<LocalDateTime, List<OpenCinemaDTO>> openCinemaList(Long openMovieId) {
-
-        Map<LocalDateTime, List<OpenCinemaDTO>> openCinemaList = new ConcurrentHashMap<>();
-
-        List<String> openDateList = new ArrayList<>();
-        String day1 = LocalDateTime.now().toLocalDate().toString();
-        String day2 = LocalDateTime.now().plusDays(1).toLocalDate().toString();
-        String day3 = LocalDateTime.now().plusDays(2).toLocalDate().toString();
-        String day4 = LocalDateTime.now().plusDays(3).toLocalDate().toString();
-        openDateList.add(day1);
-        openDateList.add(day2);
-        openDateList.add(day3);
-        openDateList.add(day4);
-
-        List<OpenCinemaDTO> cinemaNameAndCinemaAddressList = openCinemaRoomRepository.findByOpenCinemaList(openMovieId, openDateList);
-
-        int day = 0;
-
-        for (String dateTime : openDateList) {
-
-            List<OpenCinemaDTO> DateBulk = new ArrayList<>();
-            for (OpenCinemaDTO openCinemaDTO : cinemaNameAndCinemaAddressList) {
-                if (dateTime.equals(openCinemaDTO.getCinemaRoomDate().toLocalDate().toString())) {
-                    DateBulk.add(openCinemaDTO);
-                }
-            }
-            openCinemaList.put(LocalDateTime.now().plusDays(day), DateBulk);
-            day++;
-        }
-
-        return openCinemaList;
-
-    }
-     */
 
     @Override
     public Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, LocalDateTime openCinemaRoomDate) {
@@ -149,10 +115,9 @@ public class OpenMovieServiceImpl implements OpenMovieService {
         return openCinemaRoomRepository.findSiteReserveTF(cinemaRoomSiteIdList);
     }
 
-    @Override
-    public Map<String, List<OpenCinemaRoomAndSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, String openMovieDate, Long cinemaId) {
 
-        // 11시 전, 16시 전, 21시 전, 23시 59분 전
+    @Override
+    public Map<Long, List<OpenCinemaRoomDateTimeDTO>> findOpenCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId) {
 
         String[] dateSplit = openMovieDate.split("-");
         int year = Integer.parseInt(dateSplit[0]);
@@ -164,27 +129,65 @@ public class OpenMovieServiceImpl implements OpenMovieService {
         LocalDateTime dinner = LocalDateTime.of(year, month, day, 21, 0, 0); // 저녁
         LocalDateTime dawn = LocalDateTime.of(year, month, day, 23, 59, 59); // 새벽
 
-        List<OpenCinemaRoomAndSiteDTO> openCinemaRoomAndSiteList = openCinemaRoomRepository.findOpenCinemaRoomAndSite(openMovieId, openMovieDate, cinemaId);
+        List<OpenCinemaRoomDateTimeDTO> openCinemaRoomList
+                = openCinemaRoomRepository.findOpenCinemaRoomList(openMovieId, openMovieDate, cinemaId);
 
-        Map<String, List<OpenCinemaRoomAndSiteDTO>> result = new ConcurrentHashMap<>();
-        List<OpenCinemaRoomAndSiteDTO> morningDTO = new ArrayList<>();
-        List<OpenCinemaRoomAndSiteDTO> lunchDTO = new ArrayList<>();
-        List<OpenCinemaRoomAndSiteDTO> dinnerDTO = new ArrayList<>();
-        List<OpenCinemaRoomAndSiteDTO> dawnDTO = new ArrayList<>();
+        Map<Long, List<OpenCinemaRoomDateTimeDTO>> result = new ConcurrentHashMap<>();
+        List<OpenCinemaRoomDateTimeDTO> morningDTO = new ArrayList<>();
+        List<OpenCinemaRoomDateTimeDTO> lunchDTO = new ArrayList<>();
+        List<OpenCinemaRoomDateTimeDTO> dinnerDTO = new ArrayList<>();
+        List<OpenCinemaRoomDateTimeDTO> dawnDTO = new ArrayList<>();
 
-        for (OpenCinemaRoomAndSiteDTO openCinemaRoomAndSiteDTO : openCinemaRoomAndSiteList) {
-            if(morning.isAfter(openCinemaRoomAndSiteDTO.getOpenCinemaRoomStartDateTime())) morningDTO.add(openCinemaRoomAndSiteDTO);
-            else if(lunch.isAfter(openCinemaRoomAndSiteDTO.getOpenCinemaRoomStartDateTime())) lunchDTO.add(openCinemaRoomAndSiteDTO);
-            else if(dinner.isAfter(openCinemaRoomAndSiteDTO.getOpenCinemaRoomStartDateTime())) dinnerDTO.add(openCinemaRoomAndSiteDTO);
-            else if (dawn.isAfter(openCinemaRoomAndSiteDTO.getOpenCinemaRoomStartDateTime())) dawnDTO.add(openCinemaRoomAndSiteDTO);
+        for (OpenCinemaRoomDateTimeDTO openCinemaRoomDateTimeDTO : openCinemaRoomList) {
+            if(morning.isAfter(openCinemaRoomDateTimeDTO.getOpenCinemaRoomStartDateTime())) morningDTO.add(openCinemaRoomDateTimeDTO);
+            else if(lunch.isAfter(openCinemaRoomDateTimeDTO.getOpenCinemaRoomStartDateTime())) lunchDTO.add(openCinemaRoomDateTimeDTO);
+            else if(dinner.isAfter(openCinemaRoomDateTimeDTO.getOpenCinemaRoomStartDateTime())) dinnerDTO.add(openCinemaRoomDateTimeDTO);
+            else if (dawn.isAfter(openCinemaRoomDateTimeDTO.getOpenCinemaRoomStartDateTime())) dawnDTO.add(openCinemaRoomDateTimeDTO);
         }
 
-        result.put("아침", morningDTO);
-        result.put("점심", lunchDTO);
-        result.put("저녁", dinnerDTO);
-        result.put("새벽", dawnDTO);
+        for (OpenCinemaRoomDateTimeDTO openCinemaRoomDateTimeDTO : openCinemaRoomList) {
+            LocalDateTime openCinemaRoomStartDateTime = openCinemaRoomDateTimeDTO.getOpenCinemaRoomStartDateTime();
+            openCinemaRoomDateTimeDTO.setOpenCinemaRoomStartDateTimeText
+                    (openCinemaRoomStartDateTime.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 | HH시 mm분")));
+        }
+
+        result.put(1L, morningDTO); // 아침
+        result.put(2L, lunchDTO); // 점심
+        result.put(3L, dinnerDTO); // 저녁
+        result.put(4L, dawnDTO); // 새벽
 
         return result;
     }
 
+    @Override
+    public Map<Long, List<OpenCinemaRoomSiteStatusDTO>> findOpenCinemaRoomSiteStatusList(List<Long> openCinemaRoomIdList) {
+
+        List<OpenCinemaRoomSiteStatusDTO> openCinemaRoomSiteStatusList
+                = openCinemaRoomRepository.findOpenCinemaRoomSiteStatusList(openCinemaRoomIdList);
+
+        Map<Long, List<OpenCinemaRoomSiteStatusDTO>> result = new ConcurrentHashMap<>();
+
+        for (Long openCinemaRoomId : openCinemaRoomIdList) {
+
+            List<OpenCinemaRoomSiteStatusDTO> openCinemaRoomSiteStatusListSet = new ArrayList<>();
+
+            for (OpenCinemaRoomSiteStatusDTO openCinemaRoomSiteStatusDTO : openCinemaRoomSiteStatusList) {
+                if(openCinemaRoomSiteStatusDTO.getOpenCinemaRoomId().equals(openCinemaRoomId))
+                    openCinemaRoomSiteStatusListSet.add(openCinemaRoomSiteStatusDTO);
+            }
+            result.put(openCinemaRoomId, openCinemaRoomSiteStatusListSet);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<ReserveOpenCinemaRoomDTO> openCinemaRoomSiteList(Long openCinemaRoomId) {
+        return openCinemaRoomRepository.findReserveOpenCinemaRoomList(openCinemaRoomId);
+    }
+
+    @Override
+    public OpenCinemaRoomAndOpenMovieDTO openCinemaRoomAndOpenMovie(Long openCinemaRoomId) {
+        return openCinemaRoomRepository.findOpenCinemaRoomAndOpenMovie(openCinemaRoomId);
+    }
 }

@@ -9,7 +9,7 @@ public class CinemaRoomSite {
 
     @GeneratedValue
     @Id
-    private Long CinemaRoomSiteId;
+    private Long cinemaRoomSiteId;
 
     private String cinemaRoomSiteName;
 

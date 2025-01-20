@@ -1,7 +1,6 @@
 package pcm.open_movie.service;
 
 import pcm.open_movie.domain.dto.*;
-import pcm.open_movie.domain.entity.Cinema;
 import pcm.open_movie.domain.entity.CinemaRoomSite;
 import pcm.open_movie.domain.entity.OpenCinemaRoom;
 import pcm.open_movie.domain.entity.OpenMovie;
@@ -19,11 +18,11 @@ public interface OpenMovieService {
 
     Optional<OpenMovie> openMovieById(Long openMovieId);
 
-    List<Cinema> openCinemaList(Long openMovieId);
+    List<OpenCinemaDateDTO> openCinemaDateList(Long openMovieId);
 
-//    Map<LocalDateTime, List<OpenCinemaDTO>> openCinemaList(Long openMovieId);
+    List<OpenCinemaDTO> openCinemaList(Long openMovieId);
 
-    List<String> openCinemaRoomCount(Long openMovieId, Long openCinemaId);
+//    Map<LocalDateTime, List<OpenCinemaDateDTO>> openCinemaList(Long openMovieId);
 
     Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, LocalDateTime openCinemaRoomDate);
 
@@ -35,6 +34,14 @@ public interface OpenMovieService {
 
     boolean cinemaRoomSiteReserveCheck(List<Long> cinemaRoomSiteIdList);
 
-    Map<String, List<OpenCinemaRoomAndSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, String openMovieDate, Long cinemaId);
+//    Map<Long, List<OpenCinemaRoomAndSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, String openMovieDate, Long cinemaId);
+
+    Map<Long, List<OpenCinemaRoomDateTimeDTO>> findOpenCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId);
+
+    Map<Long, List<OpenCinemaRoomSiteStatusDTO>> findOpenCinemaRoomSiteStatusList(List<Long> openCinemaRoomIdList);
+
+    List<ReserveOpenCinemaRoomDTO> openCinemaRoomSiteList(Long openCinemaRoomId);
+
+    OpenCinemaRoomAndOpenMovieDTO openCinemaRoomAndOpenMovie(Long openCinemaRoomId);
 
 }

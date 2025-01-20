@@ -24,7 +24,7 @@ public class QCinemaRoomSite extends EntityPathBase<CinemaRoomSite> {
 
     public final QCinemaRoom cinemaRoom;
 
-    public final NumberPath<Long> CinemaRoomSiteId = createNumber("CinemaRoomSiteId", Long.class);
+    public final NumberPath<Long> cinemaRoomSiteId = createNumber("cinemaRoomSiteId", Long.class);
 
     public final StringPath cinemaRoomSiteName = createString("cinemaRoomSiteName");
 

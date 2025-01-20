@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>focus cinema</title>
-    <link th:href="@{../static/style/set1_style.css}" rel="stylesheet">
-    <link th:href="@{../static/style/site.css}" rel="stylesheet">
+    <link th:href="@{/static/style/set1_style.css}" rel="stylesheet">
+    <link th:href="@{/static/style/site.css}" rel="stylesheet">
 </head>
 <body class="set1">
 
@@ -28,8 +28,8 @@
 
             <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
                 <a th:href="@{member/quit}">탈퇴</a>
-                <a href="">관람 내역</a>
-                <a href="">예매 내역</a>
+                <a th:href="@{/member/reserveList?openMovieTF=false}">관람 내역</a>
+                <a th:href="@{/member/reserveList?openMovieTF=true}">예매 내역</a>
                 <a th:href="@{member/setting}" th:text="${session.get('loginMemberId')}">회원 ID</a>
                 <a th:href="@{member/exit}">로그아웃</a>
             </div>
@@ -41,13 +41,15 @@
 
         <hr>
 
-        <form class="contentSet4" th:method="post">
+        <form class="contentSet4" th:method="get" th:action="@{/focus/{openMovieId}/cinemaRoom(openMovieId=${openMovieId})}">
 
             <div class="contentSet4_menu1">
                 <div class="contentSet4_menu1_cinema">
                     <p class="contentSet4_menu1_cinemaTitle">상영 영화관</p>
-                    <p class="contentSet4_menu1_cinemaName" th:text="${reserveCinema.cinemaAddress} + ' ' + ${reserveCinema.cinemaName} + ', ' + ${openMovieTitle}">경기도 하남시 A 영화관</p>
+                    <p class="contentSet4_menu1_cinemaName"
+                       th:text="${reserveCinema.cinemaAddress} + ' ' + ${reserveCinema.cinemaName} + ', ' + ${openMovieTitle}">경기도 하남시 A 영화관</p>
                 </div>
+
                 <div class="contentSet4_menu1_siteList">
                     <p>시작 시간 기준</p>
                     <p>아침 (07:00~11:00)</p>
@@ -58,35 +60,34 @@
             </div>
 
             <div class="contentSet4_menu2">
-                <div class="siteList contentSet4_menu2_siteList">
-                    <div class="A-1 reservedSite"></div>
-                    <div class="A-2"></div>
+                <div class="siteList contentSet4_menu2_siteList" id="contentSet4_menu2_siteList">
                 </div>
             </div>
 
             <div class="contentSet4_menu3">
 
                 <div class="contentSet4_menu3_dateTimeList">
-                    <input type="button" value="아침 (06:00~11:00)" th:each="openTitle : ${openCinemaRoomList.keySet()}" th:value="${openTitle}" />
+                    <!-- * -->
+                    <input type="button" value="아침 (06:00~11:00)" th:each="dateTimeText : ${dateTimeTextList.keySet()}"
+                           th:value="${dateTimeTextList.get(dateTimeText)}" th:onclick="'findOpenCinemaRoom(' + ${dateTimeText} + ')'"/>
                 </div>
 
-                <div class="contentSet4_menu3_cinemaRoomList">
-                    <div class="contentSet4_menu3_dateAndTime">
-                        <input type="radio" id="202411171700"/>
-                        <label for="202411171700">1관 2024-11-17 17:00</label>
-                    </div>
+                <div class="contentSet4_menu3_cinemaRoomList" id="contentSet4_menu3_cinemaRoomList">
                 </div>
 
             </div>
 
             <div class="contentSet4_menu4">
-                <p class="exception">예매하실 상영 관을 선택해 주십시오.</p>
+                <p class="exception" th:if="${openCinemaRoomId_errorText != null}" th:text="${openCinemaRoomId_errorText}">예매하실 영화관, 날짜를 선택해 주십시오.</p>
             </div>
 
             <div class="contentSet4_menu5">
                 <input type="button" value="뒤로" class="rollback"/>
                 <input type="submit" value="계속" class="reserveButton"/>
             </div>
+
+            <input type="hidden" name="cinemaId" th:value="${cinemaId}">
+            <input type="hidden" name="reserveDate" th:value="${reserveDate}">
 
         </form>
 
@@ -103,6 +104,73 @@
     </footer>
 
 </div>
+
+<script th:inline="javascript" language="JavaScript">
+
+    const openCinemaRoomList = `[[${openCinemaRoomList}]]`;
+    const changeOpenCinemaRoomList = JSON.parse(openCinemaRoomList);
+
+    const contentSet4_menu3_cinemaRoomList = document.getElementById('contentSet4_menu3_cinemaRoomList');
+
+    function findOpenCinemaRoom(dateTime) {
+
+        contentSet4_menu3_cinemaRoomList.innerHTML = '';
+
+        let changeDateTime = String(dateTime);
+        let getOpenCinemaRoom = changeOpenCinemaRoomList[changeDateTime];
+
+        for (let openCinemaRoom of getOpenCinemaRoom) {
+
+            let contentSet4_menu3_dateAndTime = document.createElement("div");
+            contentSet4_menu3_dateAndTime.className = 'contentSet4_menu3_dateAndTime';
+
+            let openCinemaRoomInput = document.createElement("input");
+            openCinemaRoomInput.type = "radio";
+            openCinemaRoomInput.id = openCinemaRoom.cinemaRoomName;
+            openCinemaRoomInput.name = "openCinemaRoomId";
+            openCinemaRoomInput.value = openCinemaRoom.openCinemaRoomId;
+            openCinemaRoomInput.onclick = function() {
+                findOpenCinemaRoomSiteStatus(openCinemaRoom.openCinemaRoomId);
+            };
+
+            let openCinemaRoomLabel = document.createElement("label");
+            openCinemaRoomLabel.for = openCinemaRoom.cinemaRoomName;
+            openCinemaRoomLabel.innerText = openCinemaRoom.cinemaRoomName + ") " + openCinemaRoom.openCinemaRoomStartDateTimeText;
+            contentSet4_menu3_dateAndTime.appendChild(openCinemaRoomInput);
+            contentSet4_menu3_dateAndTime.appendChild(openCinemaRoomLabel);
+
+            contentSet4_menu3_cinemaRoomList.insertBefore(contentSet4_menu3_dateAndTime, null);
+        }
+
+        // 여기서부터
+        const contentSet4_menu2_siteList = document.getElementById('contentSet4_menu2_siteList');
+
+        const openCinemaRoomSiteStatusList = `[[${openCinemaRoomSiteStatusList}]]`;
+        const changeOpenCinemaRoomSiteStatusList = JSON.parse(openCinemaRoomSiteStatusList);
+
+        function findOpenCinemaRoomSiteStatus(openCinemaRoomId) {
+
+            const getOpenCinemaRoomSiteStatus = changeOpenCinemaRoomSiteStatusList[openCinemaRoomId];
+
+            contentSet4_menu2_siteList.innerHTML = '';
+
+            for (let openCinemaRoomSiteStatus of getOpenCinemaRoomSiteStatus) {
+
+                let site = document.createElement("div");
+                site.className = openCinemaRoomSiteStatus.openCinemaRoomSite;
+                if(openCinemaRoomSiteStatus.openCinemaRoomStatus != null) {
+                    site.classList.add('reservedSite');
+                }
+
+                contentSet4_menu2_siteList.insertBefore(site, null);
+
+            }
+
+        }
+
+    }
+
+</script>
 
 </body>
 </html>

@@ -40,18 +40,37 @@
 
         <hr>
 
-        <div class="contentSet1">
+        <form class="contentSet6" th:method="get">
 
-            <div th:each="openMovie : ${openMovieList}" class="contentSet1_menu">
-                <img th:src="@{/static/img/{openMoviePath}.png(openMoviePath=${openMovie.openMoviePostPath})}" class="movie_img"/>
-                <a th:href="@{focus/{openMovieId}(openMovieId=${openMovie.openMovieId})}" th:text="${openMovie.openMovieTitle}"></a>
+            <div class="contentSet6_menu_reserveList">
+
+                <div class="contentSet6_menu" th:each="movieReserveRoomDTO : ${movieReserveRoomDTOList}">
+                    <p class="contentSet6_menu_movieName" th:text="${movieReserveRoomDTO.openMovieTitle}"></p>
+                    <p class="contentSet6_menu_cinemaInfo"
+                       th:text="|${movieReserveRoomDTO.cinemaAddress} ${movieReserveRoomDTO.cinemaName} ${movieReserveRoomDTO.cinemaRoomName}|"></p>
+                    <div class="contentSet6_menu_siteList">
+                        <p th:each="movieReserveSite : ${movieReserveSiteList.get(movieReserveRoomDTO.getOpenCinemaRoomId())}"
+                           th:text="${movieReserveSite.cinemaRoomSiteName}">A-1 A-2 A-3</p>
+                    </div>
+                    <a href="" class="contentSet6_menu_reserveRollback">예매 취소</a>
+                </div>
+
             </div>
 
-        </div>
+            <div class="contentSet6_menu_listNum">
+                <input type="hidden" name="openMovieTF" th:value="${openMovieTF}" />
+                <input type="submit" name="pageNumber"
+                       th:if="${movieReserveRoomDTOList.totalPages}"
+                       th:each="pageNum : ${#numbers.sequence(0, movieReserveRoomDTOList.totalPages -1)}" th:value="${pageNum + 1}" />
+
+            </div>
+
+        </form>
 
         <hr>
 
     </main>
+
 
     <footer class="set1_footer">
 

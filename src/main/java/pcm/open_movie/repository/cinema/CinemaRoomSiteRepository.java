@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface CinemaRoomSiteRepository extends JpaRepository<CinemaRoomSite, Long> {
 
-    @Query("SELECT crs FROM CinemaRoomSite crs WHERE crs.CinemaRoomSiteId IN :cinemaRoomSiteIdList")
+    @Query("SELECT crs FROM CinemaRoomSite crs WHERE crs.cinemaRoomSiteId IN :cinemaRoomSiteIdList")
     List<CinemaRoomSite> findCinemaRoomSiteByIdList(@Param("cinemaRoomSiteIdList") List<Long> cinemaRoomSiteIdList);
 
 }
