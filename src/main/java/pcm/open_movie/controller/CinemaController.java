@@ -20,10 +20,9 @@ import java.util.Map;
 public class CinemaController {
 
     private final CinemaService cinemaService;
-    private final MemberService memberService;
 
     @GetMapping
-    public String cinemaList(Model model, HttpServletRequest request) {
+    public String cinemaList(Model model) {
 
         List<Cinema> cinemaList = cinemaService.cinemaList();
         Long findCinemaId = 0L;
@@ -37,7 +36,7 @@ public class CinemaController {
     // cinema
     // 관 정보, 좌석 정보 1 : N
     @PostMapping
-    public String cinemaRoomAndSiteList(@RequestParam("findCinemaId") Long findCinemaId, Model model, HttpServletRequest request) {
+    public String cinemaRoomAndSiteList(@RequestParam("findCinemaId") Long findCinemaId, Model model) {
 
         List<Cinema> cinemaList = cinemaService.cinemaList();
         model.addAttribute("cinemaList", cinemaList);

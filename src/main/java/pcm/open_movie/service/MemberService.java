@@ -1,15 +1,10 @@
 package pcm.open_movie.service;
 
-import pcm.open_movie.domain.dto.MemberDTO;
 import pcm.open_movie.domain.entity.Member;
-
-import java.util.Optional;
 
 public interface MemberService {
 
     Member findMemberById(String memberId);
-
-    String findMemberName(String memberId);
 
     boolean memberExist(String memberId);
 

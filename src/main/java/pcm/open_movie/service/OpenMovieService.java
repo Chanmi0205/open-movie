@@ -22,19 +22,11 @@ public interface OpenMovieService {
 
     List<OpenCinemaDTO> openCinemaList(Long openMovieId);
 
-//    Map<LocalDateTime, List<OpenCinemaDateDTO>> openCinemaList(Long openMovieId);
-
     Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, LocalDateTime openCinemaRoomDate);
-
-    List<OpenCinemaRoomSiteSelectDTO> openCinemaRoomSiteSelect(Long openCinemaRoomId);
 
     OpenCinemaRoom openCinemaRoomById(Long openCinemaRoomId);
 
     List<CinemaRoomSite> cinemaRoomSiteList(List<Long> cinemaRoomSiteIdList);
-
-    boolean cinemaRoomSiteReserveCheck(List<Long> cinemaRoomSiteIdList);
-
-//    Map<Long, List<OpenCinemaRoomAndSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, String openMovieDate, Long cinemaId);
 
     Map<Long, List<OpenCinemaRoomDateTimeDTO>> findOpenCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId);
 

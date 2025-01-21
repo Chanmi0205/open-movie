@@ -3,7 +3,6 @@ package pcm.open_movie.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.internal.constraintvalidators.bv.money.MaxValidatorForMonetaryAmount;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +14,11 @@ import pcm.open_movie.service.MemberService;
 import pcm.open_movie.service.MovieReserveService;
 import pcm.open_movie.service.OpenMovieService;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-// main page(home),
-// reserve service(open movie list, movie reserve service, reserve date, cinema room, cinema room site ... select)
 @Controller
 @RequestMapping("/focus")
 @RequiredArgsConstructor
@@ -35,7 +31,7 @@ public class FocusController {
 
     // 상영 영화 선택(메인 페이지)
     @GetMapping
-    public String focus(Model model, HttpServletRequest request) {
+    public String focus(Model model) {
 
         List<OpenMovie> openMovieList = openMovieService.openMovieList();
         model.addAttribute("openMovieList", openMovieList);
@@ -48,7 +44,7 @@ public class FocusController {
     public String openCinema(@PathVariable("openMovieId") Long openMovieId,
                              @RequestParam(value = "openCinemaRoomIdNull", required = false) String openCinemaRoomIdNull,
                              @RequestParam(value = "reserveDateNull", required = false) String reserveDateNull,
-                             Model model, HttpServletRequest request) {
+                             Model model) {
 
         if(openCinemaRoomIdNull != null) {
             String openCinemaRoomIdNull_errorText = "관람할 영화관을 선택해 주십시오.";
@@ -155,7 +151,7 @@ public class FocusController {
                                      @RequestParam(value = "reserveDate", required = false) String reserveDate,
                                      @RequestParam(value = "openCinemaRoomId", required = false) Long openCinemaRoomId,
                                      @RequestParam(value = "cinemaRoomSiteIdNull", required = false) String cinemaRoomSiteIdNull,
-                                     Model model, HttpServletRequest request) {
+                                     Model model) {
 
         if(openCinemaRoomId == null && cinemaId != null && reserveDate != null)
             return "redirect:/focus/" + openMovieId + "/cinema?cinemaId="
@@ -182,7 +178,7 @@ public class FocusController {
     public String openCinemaRoomSiteReserve(@PathVariable("openMovieId") Long openMovieId,
                                             @RequestParam(value = "openCinemaRoomId", required = false) Long openCinemaRoomId,
                                             @RequestParam(value = "cinemaRoomSiteIdList", required = false) List<Long> cinemaRoomSiteIdList,
-                                            Model model, HttpServletRequest request) {
+                                            HttpServletRequest request) {
 
         if (cinemaRoomSiteIdList == null) return "redirect:/focus/" + openMovieId
                 + "/cinemaRoom?openCinemaRoomId=" + openCinemaRoomId + "&cinemaRoomSiteIdNull=true";

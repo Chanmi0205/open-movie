@@ -98,7 +98,4 @@ public interface OpenCinemaRoomRepository extends JpaRepository<OpenCinemaRoom, 
             "WHERE ocr.openCinemaRoomId = :openCinemaRoomId")
     OpenCinemaRoomAndOpenMovieDTO findOpenCinemaRoomAndOpenMovie(@Param("openCinemaRoomId") Long openCinemaRoomId);
 
-    @Query("SELECT ocr FROM OpenCinemaRoom ocr WHERE ocr.openCinemaRoomId = :openCinemaRoomId")
-    OpenCinemaRoom findOpenCinemaRoomById(@Param("openCinemaRoomId") Long openCinemaRoomId);
-
 }

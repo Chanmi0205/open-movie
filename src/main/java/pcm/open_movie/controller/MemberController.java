@@ -4,16 +4,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pcm.open_movie.domain.dto.MovieReserveDTO;
 import pcm.open_movie.domain.dto.MovieReserveRoomDTO;
 import pcm.open_movie.domain.dto.MovieReserveSiteDTO;
 import pcm.open_movie.domain.entity.Member;
@@ -24,7 +21,6 @@ import pcm.open_movie.controller.form.member.SettingMemberForm;
 import pcm.open_movie.service.MemberService;
 import pcm.open_movie.service.MovieReserveService;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +35,7 @@ public class MemberController {
     private final MemberService memberService;
     private final MovieReserveService movieReserveService;
 
-    @GetMapping("/signUp")
+        @GetMapping("/signUp")
     public String signUp(Model model) {
         model.addAttribute("memberForm", new MemberForm());
         return "member/signUp";
@@ -47,7 +43,8 @@ public class MemberController {
 
     @PostMapping("/signUp")
     public String signUp(@Validated @ModelAttribute(name = "memberForm") MemberForm memberForm,
-                         BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI, HttpServletRequest request) {
+                         BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI,
+                         HttpServletRequest request) {
 
         // 입력한 두 비밀번호가 일치하지 않을 경우
         if(!memberForm.getPassword().equals(memberForm.getCheckPassword()))
@@ -77,7 +74,8 @@ public class MemberController {
     
     @PostMapping("/login")
     public String login(@Validated @ModelAttribute("loginMemberForm") LoginMemberForm loginMemberForm,
-                        BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI, HttpServletRequest request) {
+                        BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI,
+                        HttpServletRequest request) {
 
         // 회원 아이디가 존재하지 않을 경우
         if(!memberService.memberExist(loginMemberForm.getMemberId()))
@@ -111,7 +109,8 @@ public class MemberController {
 
     @PostMapping("/quit")
     public String quitMember(@Validated @ModelAttribute("quitMemberForm") QuitMemberForm quitMemberForm,
-                             BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI, HttpServletRequest request) {
+                             BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI,
+                             HttpServletRequest request) {
 
         // 회원 아이디와 비밀번호가 일치하는 데이터가 없는 경우
         if(!memberService.memberExist(quitMemberForm.getMemberId(), quitMemberForm.getPassword()))
@@ -143,7 +142,8 @@ public class MemberController {
 
     @PostMapping("/setting")
     public String setting(@Validated @ModelAttribute("settingMemberForm") SettingMemberForm settingMemberForm,
-                          BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI, HttpServletRequest request) {
+                          BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI,
+                          HttpServletRequest request) {
 
         // 비밀번호를 입력하지 않은 경우
         if (settingMemberForm.getPassword() == null && settingMemberForm.getCheckPassword() == null) {

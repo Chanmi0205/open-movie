@@ -4,15 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pcm.open_movie.domain.dto.MemberDTO;
 import pcm.open_movie.domain.entity.Member;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, String> {
-
-    // 회원 정보 수정 시 기본적으로 제공하는 정보
-    @Query("SELECT NEW pcm.open_movie.domain.dto.MemberDTO(m.memberId, m.memberName, m.phoneNum) FROM Member m WHERE m.memberId = :memberId")
-    MemberDTO findByMemberId(@Param("memberId") String memberId);
 
     // 로그인 시 사이트를 이용할 때 기본적으로 제공되는 정보
     @Query("SELECT m.memberName FROM Member m WHERE m.memberId = :memberId")

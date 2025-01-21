@@ -95,11 +95,6 @@ public class OpenMovieServiceImpl implements OpenMovieService {
     }
 
     @Override
-    public List<OpenCinemaRoomSiteSelectDTO> openCinemaRoomSiteSelect(Long openCinemaRoomId) {
-        return openCinemaRoomRepository.findCinemaRoomSiteListByOpenCinemaRoomId(openCinemaRoomId);
-    }
-
-    @Override
     public OpenCinemaRoom openCinemaRoomById(Long openCinemaRoomId) {
         return openCinemaRoomRepository.findById(openCinemaRoomId).orElse(null);
     }
@@ -108,13 +103,6 @@ public class OpenMovieServiceImpl implements OpenMovieService {
     public List<CinemaRoomSite> cinemaRoomSiteList(List<Long> cinemaRoomSiteIdList) {
         return cinemaRoomSiteRepository.findCinemaRoomSiteByIdList(cinemaRoomSiteIdList);
     }
-
-    // 참이면 존재하고, 거짓이면 좌석 예매를 하지 않은 상태임
-    @Override
-    public boolean cinemaRoomSiteReserveCheck(List<Long> cinemaRoomSiteIdList) {
-        return openCinemaRoomRepository.findSiteReserveTF(cinemaRoomSiteIdList);
-    }
-
 
     @Override
     public Map<Long, List<OpenCinemaRoomDateTimeDTO>> findOpenCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId) {

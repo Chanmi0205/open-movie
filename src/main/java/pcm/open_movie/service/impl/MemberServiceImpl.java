@@ -22,11 +22,6 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public String findMemberName(String memberId) {
-        return memberRepository.findMemberNameByMemberId(memberId);
-    }
-
-    @Override
     public boolean memberExist(String memberId) {
         return memberRepository.memberExists(memberId);
     }

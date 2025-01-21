@@ -51,23 +51,6 @@ public class MovieReserveRepositoryCustomImpl implements MovieReserveRepositoryC
                 .orderBy(openCinemaRoom.openMovieDate.desc())
                 .fetch();
 
-//        List<MovieReserveDTO> content = queryFactory
-//                .select(new QMovieReserveDTO
-//                        (cinema.cinemaName, cinema.cinemaAddress, cinemaRoom.cinemaRoomName, cinemaRoomSite.cinemaRoomSiteName,
-//                                openMovie.openMovieTitle, openCinemaRoom.openMovieDate))
-//                .from(movieReserve)
-//                .leftJoin(movieReserve.cinemaRoomSite, cinemaRoomSite)
-//                .leftJoin(cinemaRoomSite.cinemaRoom, cinemaRoom)
-//                .leftJoin(cinemaRoom.cinema, cinema)
-//                .leftJoin(movieReserve.openCinemaRoom, openCinemaRoom)
-//                .on(openCinemaRoom.openMovieDate.after(now))
-//                .leftJoin(openCinemaRoom.openMovie, openMovie)
-//                .where(movieReserve.member.memberId.eq(memberId))
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize())
-//                .orderBy(openCinemaRoom.openMovieDate.desc())
-//                .fetch();
-
         JPAQuery<Long> count = queryFactory.select(movieReserve.count())
                 .from(movieReserve)
                 .leftJoin(movieReserve.openCinemaRoom, openCinemaRoom)
