@@ -1,6 +1,7 @@
 package pcm.open_movie.service;
 
-import pcm.open_movie.domain.dto.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndSiteNameDTO;
 import pcm.open_movie.domain.entity.Cinema;
 
 import java.util.List;
@@ -10,9 +11,9 @@ public interface CinemaService {
 
     List<Cinema> cinemaList();
 
-    Cinema findCinemaById(Long cinemaId);
+    Cinema getCinema(Long cinemaId);
 
-    Map<Long, List<String>> cinemaRoomAndSiteList(Long cinemaId);
+    Map<Long, List<String>> cinemaRoomSiteList(List<CinemaRoomIdAndNameDTO> CinemaRoomIdAndSiteNameDTOList);
 
-    List<CinemaRoomIdAndNameDTO> cinemaRoomNameList(List<Long> cinemaRoomIdList);
+    List<CinemaRoomIdAndNameDTO> cinemaRoomList(Long cinemaId);
 }

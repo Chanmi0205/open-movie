@@ -1,14 +1,12 @@
 package pcm.open_movie.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import pcm.open_movie.domain.dto.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndNameDTO;
 import pcm.open_movie.domain.entity.Cinema;
 import pcm.open_movie.service.CinemaService;
-import pcm.open_movie.service.MemberService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +23,7 @@ public class CinemaController {
     public String cinemaList(Model model) {
 
         List<Cinema> cinemaList = cinemaService.cinemaList();
-        Long findCinemaId = 0L;
-
         model.addAttribute("cinemaList", cinemaList);
-        model.addAttribute("findCinemaId", findCinemaId);
 
         return "focus/findCinema/cinemaSearch";
     }
@@ -41,18 +36,13 @@ public class CinemaController {
         List<Cinema> cinemaList = cinemaService.cinemaList();
         model.addAttribute("cinemaList", cinemaList);
 
-        Cinema findCinema = cinemaService.findCinemaById(findCinemaId);
-        Map<Long, List<String>> cinemaRoomAndSiteList = cinemaService.cinemaRoomAndSiteList(findCinemaId);
+        Cinema findCinema = cinemaService.getCinema(findCinemaId);
+        List<CinemaRoomIdAndNameDTO> cinemaRoomList = cinemaService.cinemaRoomList(findCinemaId);
+        Map<Long, List<String>> cinemaRoomSiteList = cinemaService.cinemaRoomSiteList(cinemaRoomList);
 
-        List<Long> cinemaRoomIdList = new ArrayList<>(cinemaRoomAndSiteList.keySet());
-
-        List<CinemaRoomIdAndNameDTO> cinemaRoomIdAndNameList = cinemaService.cinemaRoomNameList(cinemaRoomIdList);
-        model.addAttribute("cinemaRoomIdAndNameList", cinemaRoomIdAndNameList);
-
-        // 1 - 1관, 2 - 2관
         model.addAttribute("findCinema", findCinema);
-        model.addAttribute("findCinemaId", findCinemaId);
-        model.addAttribute("cinemaRoomAndSiteList", cinemaRoomAndSiteList);
+        model.addAttribute("cinemaRoomList", cinemaRoomList);
+        model.addAttribute("cinemaRoomSiteList", cinemaRoomSiteList);
 
         return "focus/findCinema/cinemaSearch";
     }

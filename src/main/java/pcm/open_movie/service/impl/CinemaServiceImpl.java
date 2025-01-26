@@ -3,18 +3,14 @@ package pcm.open_movie.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pcm.open_movie.domain.dto.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndSiteNameDTO;
 import pcm.open_movie.domain.entity.Cinema;
-import pcm.open_movie.domain.entity.CinemaRoom;
-import pcm.open_movie.domain.entity.CinemaRoomSite;
 import pcm.open_movie.repository.cinema.CinemaRepository;
 import pcm.open_movie.repository.cinema.CinemaRoomRepository;
 import pcm.open_movie.service.CinemaService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -25,47 +21,56 @@ public class CinemaServiceImpl implements CinemaService {
     private final CinemaRepository cinemaRepository;
     private final CinemaRoomRepository cinemaRoomRepository;
 
+    // CinemaController cinemaList, cinemaRoomAndSiteList
     @Override
     public List<Cinema> cinemaList() {
         return cinemaRepository.findAll();
     }
 
+    // CinemaController cinemaRoomAndSiteList, FocusController openCinemaRoomList
     @Override
-    public Cinema findCinemaById(Long cinemaId) {
+    public Cinema getCinema(Long cinemaId) {
         Optional<Cinema> cinema = cinemaRepository.findById(cinemaId);
         return cinema.orElse(null);
     }
 
+    // CinemaController cinemaRoomAndSiteList
     @Override
-    public Map<Long, List<String>> cinemaRoomAndSiteList(Long cinemaId) {
+    public List<CinemaRoomIdAndNameDTO> cinemaRoomList(Long cinemaId) {
+        return cinemaRoomRepository.findCinemaRoomIdAndNameByCinemaRoomId(cinemaId);
+    }
 
-        List<CinemaRoom> cinemaRoomList = cinemaRoomRepository.findCinemaRoomByCinemaId(cinemaId);
-        List<CinemaRoomSite> CinemaRoomSiteList = cinemaRoomRepository.findCinemaRoomAndSiteByCinemaId(cinemaId);
+    // CinemaController cinemaRoomAndSiteList
+    @Override
+    public Map<Long, List<String>> cinemaRoomSiteList(List<CinemaRoomIdAndNameDTO> CinemaRoomIdAndSiteNameDTOList) {
 
-        // cinemaRoomId - SiteNameList
-        Map<Long, List<String>> cinemaRoomAndSiteMap = new ConcurrentHashMap<>();
+        List<Long> cinemaRoomIdList = new ArrayList<>();
 
-        // 1관, 2관, 3관 ...
-        for (CinemaRoom cinemaRoom : cinemaRoomList) {
+        for (CinemaRoomIdAndNameDTO cinemaRoomIdAndNameDTO : CinemaRoomIdAndSiteNameDTOList) {
+            cinemaRoomIdList.add(cinemaRoomIdAndNameDTO.getCinemaRoomId());
+        }
 
-            // 1관 - A-1, A-2 ,,,
-            List<String> cinemaRoomSiteNameList = new ArrayList<>();
+        Map<Long, List<String>> cinemaRoomIdAndSiteList = new ConcurrentHashMap<>();
 
-            for (CinemaRoomSite cinemaRoomSite : CinemaRoomSiteList) {
-                if(cinemaRoomSite.getCinemaRoom().getCinemaRoomId().equals(cinemaRoom.getCinemaRoomId())) {
-                    cinemaRoomSiteNameList.add(cinemaRoomSite.getCinemaRoomSiteName());
+        List<CinemaRoomIdAndSiteNameDTO> cinemaRoomSiteNameList
+                = cinemaRoomRepository.findCinemaRoomSiteNameList(cinemaRoomIdList);
+
+        for (Long cinemaRoomId : cinemaRoomIdList) {
+
+            List<String> siteNameList = new ArrayList<>();
+
+            for (CinemaRoomIdAndSiteNameDTO cinemaRoomIdAndSiteNameDTO : cinemaRoomSiteNameList) {
+                if(cinemaRoomId.equals(cinemaRoomIdAndSiteNameDTO.getCinemaRoomId())) {
+                    siteNameList.add(cinemaRoomIdAndSiteNameDTO.getCinemaRoomSiteName());
                 }
             }
 
-            cinemaRoomAndSiteMap.put(cinemaRoom.getCinemaRoomId(), cinemaRoomSiteNameList);
+            cinemaRoomIdAndSiteList.put(cinemaRoomId, siteNameList);
+
         }
 
-        return cinemaRoomAndSiteMap;
-    }
+        return cinemaRoomIdAndSiteList;
 
-    @Override
-    public List<CinemaRoomIdAndNameDTO> cinemaRoomNameList(List<Long> cinemaRoomIdList) {
-        return cinemaRoomRepository.findCinemaRoomIdAndNameDTOByCinemaRoomIdList(cinemaRoomIdList);
     }
 
 }

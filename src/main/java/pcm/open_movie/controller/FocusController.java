@@ -14,7 +14,6 @@ import pcm.open_movie.service.MemberService;
 import pcm.open_movie.service.MovieReserveService;
 import pcm.open_movie.service.OpenMovieService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +38,6 @@ public class FocusController {
        return "focus/main";
     }
 
-    // 상영일, 영화관 선택 (PCM 2024-10-05)
     @GetMapping("/{openMovieId}")
     public String openCinema(@PathVariable("openMovieId") Long openMovieId,
                              @RequestParam(value = "openCinemaRoomIdNull", required = false) String openCinemaRoomIdNull,
@@ -54,34 +52,15 @@ public class FocusController {
             model.addAttribute("reserveDateNull_errorText", reserveDateNull_errorText);
         }
 
-        Map<Long, List<OpenCinemaDateDTO>> openCinemaAndDateList = new ConcurrentHashMap<>();
-
         // 선택한 상영 영화
         OpenMovie openMovie = openMovieService.openMovieById(openMovieId).orElse(null);
         model.addAttribute("openMovie", openMovie);
 
-        // ~
         // 오픈 날짜, 상영관
         List<OpenCinemaDTO> openCinemaList = openMovieService.openCinemaList(openMovieId);
         model.addAttribute("openCinemaList", openCinemaList);
 
-        List<OpenCinemaDateDTO> openCinemaDateList = openMovieService.openCinemaDateList(openMovieId);
-
-        for (OpenCinemaDTO openCinemaDTO : openCinemaList) {
-
-            Long openCinemaId = openCinemaDTO.getCinemaId();
-
-            List<OpenCinemaDateDTO> openCinemaDTOList = new ArrayList<>();
-
-            for (OpenCinemaDateDTO openCinemaDateDTO : openCinemaDateList) {
-                if (openCinemaId.equals(openCinemaDateDTO.getCinemaId())) {
-                    openCinemaDTOList.add(openCinemaDateDTO);
-                }
-
-                openCinemaAndDateList.put(openCinemaId, openCinemaDTOList);
-            }
-        }
-
+        Map<Long, List<OpenCinemaDateDTO>> openCinemaAndDateList = openMovieService.openCinemaDateList(openMovieId, openCinemaList);
         model.addAttribute("openCinemaAndDateList", openCinemaAndDateList);
 
         return "focus/reserve/openCinema";
@@ -110,26 +89,16 @@ public class FocusController {
         String openMovieTitle = openMovieService.openMovieTitle(openMovieId);
         model.addAttribute("openMovieTitle", openMovieTitle);
 
-        Cinema reserveCinema = cinemaService.findCinemaById(cinemaId);
+        Cinema reserveCinema = cinemaService.getCinema(cinemaId);
         model.addAttribute("reserveCinema", reserveCinema);
 
-
         Map<Long, List<OpenCinemaRoomDateTimeDTO>> openCinemaRoomList
-                = openMovieService.findOpenCinemaRoomList(openMovieId, reserveDate, cinemaId);
-
-        ArrayList<Long> openCinemaRoomIdList = new ArrayList<>();
-
-        for (List<OpenCinemaRoomDateTimeDTO> openCinemaRoomDateTimeDTOList : openCinemaRoomList.values()) {
-            for (OpenCinemaRoomDateTimeDTO openCinemaRoomDateTimeDTO : openCinemaRoomDateTimeDTOList) {
-                openCinemaRoomIdList.add(openCinemaRoomDateTimeDTO.getOpenCinemaRoomId());
-            }
-        }
+                = openMovieService.openCinemaRoomList(openMovieId, reserveDate, cinemaId);
 
         Map<Long, List<OpenCinemaRoomSiteStatusDTO>> openCinemaRoomSiteStatusList
-                = openMovieService.findOpenCinemaRoomSiteStatusList(openCinemaRoomIdList);
+                = openMovieService.openCinemaRoomSiteStatusList(openCinemaRoomList);
 
         model.addAttribute("openCinemaRoomSiteStatusList", openCinemaRoomSiteStatusList);
-
         model.addAttribute("openCinemaRoomList", openCinemaRoomList);
 
         // *
@@ -143,8 +112,6 @@ public class FocusController {
         return "focus/reserve/openRoomAndTime";
     }
 
-    // 여기서부터
-    // 좌석 선택 (A-1, A-2, ,,,)
     @GetMapping("/{openMovieId}/cinemaRoom")
     public String openCinemaRoomSite(@PathVariable("openMovieId") Long openMovieId,
                                      @RequestParam(value = "cinemaId", required = false) Long cinemaId,
@@ -163,6 +130,10 @@ public class FocusController {
         }
 
         model.addAttribute("openCinemaRoomId", openCinemaRoomId);
+
+        // rollback
+        model.addAttribute("cinemaId", cinemaId);
+        model.addAttribute("reserveDate", reserveDate);
 
         OpenCinemaRoomAndOpenMovieDTO openCinemaRoomAndOpenMovieDTO = openMovieService.openCinemaRoomAndOpenMovie(openCinemaRoomId);
         model.addAttribute("openCinemaRoomAndOpenMovieDTO", openCinemaRoomAndOpenMovieDTO);
@@ -189,7 +160,7 @@ public class FocusController {
         HttpSession session = request.getSession(false);
         String loginMemberId = (String) session.getAttribute(SessionConst.LOGIN_MEMBER_ID);
 
-        Member member = memberService.findMemberById(loginMemberId);
+        Member member = memberService.getMember(loginMemberId);
         movieReserveService.movieReserve(member, openCinemaRoom, cinemaRoomSiteList);
 
         return "redirect:/focus";

@@ -4,23 +4,24 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pcm.open_movie.domain.dto.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndNameDTO;
+import pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndSiteNameDTO;
 import pcm.open_movie.domain.entity.CinemaRoom;
-import pcm.open_movie.domain.entity.CinemaRoomSite;
 
 import java.util.List;
 
 @Repository
 public interface CinemaRoomRepository extends JpaRepository<CinemaRoom, Long> {
 
-    @Query("SELECT cr FROM CinemaRoom cr WHERE cr.cinema.cinemaId = :cinemaId")
-    List<CinemaRoom> findCinemaRoomByCinemaId(@Param("cinemaId") Long cinemaId);
+    @Query("SELECT NEW pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndSiteNameDTO" +
+            "(cr.cinemaRoomId, crs.cinemaRoomSiteName) " +
+            "FROM CinemaRoomSite crs " +
+            "LEFT JOIN FETCH CinemaRoom cr ON crs.cinemaRoom.cinemaRoomId = cr.cinemaRoomId " +
+            "WHERE crs.cinemaRoom.cinemaRoomId IN :cinemaRoomIdList")
+    List<CinemaRoomIdAndSiteNameDTO> findCinemaRoomSiteNameList(@Param("cinemaRoomIdList") List<Long> cinemaRoomIdList);
 
-    @Query("SELECT crs FROM CinemaRoomSite crs JOIN FETCH CinemaRoom cr ON cr.cinema.cinemaId = :cinemaId")
-    List<CinemaRoomSite> findCinemaRoomAndSiteByCinemaId(@Param("cinemaId") Long cinemaId);
-
-    @Query("SELECT NEW pcm.open_movie.domain.dto.CinemaRoomIdAndNameDTO(cr.cinemaRoomId, cr.cinemaRoomName) " +
-            "FROM CinemaRoom cr WHERE cr.cinemaRoomId IN :cinemaRoomIdList")
-    List<CinemaRoomIdAndNameDTO> findCinemaRoomIdAndNameDTOByCinemaRoomIdList(@Param("cinemaRoomIdList") List<Long> cinemaRoomIdList);
+    @Query("SELECT NEW pcm.open_movie.domain.dto.cinema.CinemaRoomIdAndNameDTO(cr.cinemaRoomId, cr.cinemaRoomName) " +
+            "FROM CinemaRoom cr WHERE cr.cinema.cinemaId =:cinemaId")
+    List<CinemaRoomIdAndNameDTO> findCinemaRoomIdAndNameByCinemaRoomId(@Param("cinemaId") Long cinemaId);
 
 }

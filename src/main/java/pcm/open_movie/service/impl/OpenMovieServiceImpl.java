@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,85 +26,65 @@ public class OpenMovieServiceImpl implements OpenMovieService {
     private final OpenCinemaRoomRepository openCinemaRoomRepository;
     private final CinemaRoomSiteRepository cinemaRoomSiteRepository;
 
-    @Override
-    public String openMovieTitle(Long openMovieId) {
-        return openMovieRepository.findTitleByOpenMovieId(openMovieId);
-    }
-
+    // FocusController focus
     @Override
     public List<OpenMovie> openMovieList() {
         return openMovieRepository.findAll();
     }
 
+    // FocusController openCinema
     @Override
     public Optional<OpenMovie> openMovieById(Long openMovieId) {
         return openMovieRepository.findById(openMovieId);
     }
 
-    @Override
-    public List<OpenCinemaDateDTO> openCinemaDateList(Long openMovieId) {
-        List<Object[]> openCinemaList = openCinemaRoomRepository.findOpenCinemaDateByOpenMovieId(openMovieId);
-        return openCinemaList.stream()
-                    .map(row -> new OpenCinemaDateDTO((Long) row[0], (String) row[1], (String) row[2], (String) row[3]))
-                    .collect(Collectors.toList());
-    }
-
+    // FocusController openCinema
     @Override
     public List<OpenCinemaDTO> openCinemaList(Long openMovieId) {
         return openCinemaRoomRepository.findOpenCinemaByOpenMovieId(openMovieId);
     }
 
+    // FocusController openCinema
     @Override
-    public Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, LocalDateTime openCinemaRoomDate) {
+    public Map<Long, List<OpenCinemaDateDTO>> openCinemaDateList
+    (Long openMovieId, List<OpenCinemaDTO> openCinemaList) {
 
-        String openCinemaRoomDateFormat = openCinemaRoomDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        List<Object[]> openCinemaDateListResult = openCinemaRoomRepository.findOpenCinemaDateByOpenMovieId(openMovieId);
+        List<OpenCinemaDateDTO> openCinemaDateList = openCinemaDateListResult.stream()
+                .map(row -> new OpenCinemaDateDTO((Long) row[0], (String) row[1], (String) row[2], (String) row[3]))
+                .toList();
 
-        // 관PK, 관명
-        List<OpenCinemaRoomDTO> openCinemaRoomList = openCinemaRoomRepository.findByOpenCinemaRoomList(openCinemaRoomDateFormat, openMovieId);
+        Map<Long, List<OpenCinemaDateDTO>> openCinemaAndDateList = new ConcurrentHashMap<>();
 
-        for (OpenCinemaRoomDTO openCinemaRoomDTO : openCinemaRoomList) {
-            openCinemaRoomDTO.setOpenCinemaDateFormat(openCinemaRoomDate.format(DateTimeFormatter.ofPattern("yyyy'년' MM'월' dd'일' HH'시' mm'분'")));
-        }
+        for (OpenCinemaDTO openCinemaDTO : openCinemaList) {
 
-        // 관 ID 추출
-        List<Long> cinemaRoomIdList = new ArrayList<>();
-        for (OpenCinemaRoomDTO openCinemaRoomDTO : openCinemaRoomList) {
-            cinemaRoomIdList.add(openCinemaRoomDTO.getOpenCinemaRoomId());
-        }
+            Long openCinemaId = openCinemaDTO.getCinemaId();
 
-        // 관ID, 관좌석명, 좌석예매여부
-        List<OpenCinemaRoomSiteDTO> openCinemaRoomSiteList = openCinemaRoomRepository.findOpenCinemaRoomSiteList(cinemaRoomIdList);
+            List<OpenCinemaDateDTO> openCinemaDTOList = new ArrayList<>();
 
-        Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList = new HashMap<>();
-
-        // 관PK - 좌석1(좌석예매여부), 좌석2(좌석예매여부) ...
-        for (OpenCinemaRoomDTO openCinemaRoomDTO : openCinemaRoomList) {
-
-            List<OpenCinemaRoomSiteDTO> bulkSiteList = new ArrayList<>();
-
-            for (OpenCinemaRoomSiteDTO openCinemaRoomSiteDTO : openCinemaRoomSiteList) {
-                if (openCinemaRoomDTO.getOpenCinemaRoomId().equals(openCinemaRoomSiteDTO.getOpenCinemaRoomId())) {
-                    bulkSiteList.add(openCinemaRoomSiteDTO);
+            for (OpenCinemaDateDTO openCinemaDateDTO : openCinemaDateList) {
+                if (openCinemaId.equals(openCinemaDateDTO.getCinemaId())) {
+                    openCinemaDTOList.add(openCinemaDateDTO);
                 }
+
+                openCinemaAndDateList.put(openCinemaId, openCinemaDTOList);
             }
-
-            openCinemaRoomAndSiteList.put(openCinemaRoomDTO, bulkSiteList);
         }
-        return openCinemaRoomAndSiteList;
+
+        return openCinemaAndDateList;
+
     }
 
+    // FocusController openCinemaRoomList
     @Override
-    public OpenCinemaRoom openCinemaRoomById(Long openCinemaRoomId) {
-        return openCinemaRoomRepository.findById(openCinemaRoomId).orElse(null);
+    public String openMovieTitle(Long openMovieId) {
+        return openMovieRepository.findTitleByOpenMovieId(openMovieId);
     }
 
-    @Override
-    public List<CinemaRoomSite> cinemaRoomSiteList(List<Long> cinemaRoomSiteIdList) {
-        return cinemaRoomSiteRepository.findCinemaRoomSiteByIdList(cinemaRoomSiteIdList);
-    }
 
+    // FocusController openCinemaRoomList
     @Override
-    public Map<Long, List<OpenCinemaRoomDateTimeDTO>> findOpenCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId) {
+    public Map<Long, List<OpenCinemaRoomDateTimeDTO>> openCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId) {
 
         String[] dateSplit = openMovieDate.split("-");
         int year = Integer.parseInt(dateSplit[0]);
@@ -147,8 +126,21 @@ public class OpenMovieServiceImpl implements OpenMovieService {
         return result;
     }
 
+    // FocusController openCinemaRoomList
     @Override
-    public Map<Long, List<OpenCinemaRoomSiteStatusDTO>> findOpenCinemaRoomSiteStatusList(List<Long> openCinemaRoomIdList) {
+    public Map<Long, List<OpenCinemaRoomSiteStatusDTO>> openCinemaRoomSiteStatusList(Map<Long, List<OpenCinemaRoomDateTimeDTO>> openCinemaRoomList) {
+
+        ArrayList<Long> openCinemaRoomIdList = new ArrayList<>();
+
+        for (List<OpenCinemaRoomDateTimeDTO> openCinemaRoomDateTimeDTOList : openCinemaRoomList.values()) {
+            for (OpenCinemaRoomDateTimeDTO openCinemaRoomDateTimeDTO : openCinemaRoomDateTimeDTOList) {
+                openCinemaRoomIdList.add(openCinemaRoomDateTimeDTO.getOpenCinemaRoomId());
+            }
+        }
+
+        for (Long openCinemaRoomId : openCinemaRoomIdList) {
+            System.out.println("openCinemaRoomId = " + openCinemaRoomId);
+        }
 
         List<OpenCinemaRoomSiteStatusDTO> openCinemaRoomSiteStatusList
                 = openCinemaRoomRepository.findOpenCinemaRoomSiteStatusList(openCinemaRoomIdList);
@@ -169,13 +161,67 @@ public class OpenMovieServiceImpl implements OpenMovieService {
         return result;
     }
 
+    // FocusController openCinemaRoomSite
+    @Override
+    public OpenCinemaRoomAndOpenMovieDTO openCinemaRoomAndOpenMovie(Long openCinemaRoomId) {
+        return openCinemaRoomRepository.findOpenCinemaRoomAndOpenMovie(openCinemaRoomId);
+    }
+
+    // FocusController openCinemaRoomSite
     @Override
     public List<ReserveOpenCinemaRoomDTO> openCinemaRoomSiteList(Long openCinemaRoomId) {
         return openCinemaRoomRepository.findReserveOpenCinemaRoomList(openCinemaRoomId);
     }
 
+    // FocusController openCinemaRoomSiteReserve
     @Override
-    public OpenCinemaRoomAndOpenMovieDTO openCinemaRoomAndOpenMovie(Long openCinemaRoomId) {
-        return openCinemaRoomRepository.findOpenCinemaRoomAndOpenMovie(openCinemaRoomId);
+    public OpenCinemaRoom openCinemaRoomById(Long openCinemaRoomId) {
+        return openCinemaRoomRepository.findById(openCinemaRoomId).orElse(null);
     }
+
+    // FocusController openCinemaRoomSiteReserve
+    @Override
+    public List<CinemaRoomSite> cinemaRoomSiteList(List<Long> cinemaRoomSiteIdList) {
+        return cinemaRoomSiteRepository.findCinemaRoomSiteByIdList(cinemaRoomSiteIdList);
+    }
+
+    @Override
+    public Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList(Long openMovieId, LocalDateTime openCinemaRoomDate) {
+
+        String openCinemaRoomDateFormat = openCinemaRoomDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+
+        // 관PK, 관명
+        List<OpenCinemaRoomDTO> openCinemaRoomList = openCinemaRoomRepository.findByOpenCinemaRoomList(openCinemaRoomDateFormat, openMovieId);
+
+        for (OpenCinemaRoomDTO openCinemaRoomDTO : openCinemaRoomList) {
+            openCinemaRoomDTO.setOpenCinemaDateFormat(openCinemaRoomDate.format(DateTimeFormatter.ofPattern("yyyy'년' MM'월' dd'일' HH'시' mm'분'")));
+        }
+
+        // 관 ID 추출
+        List<Long> cinemaRoomIdList = new ArrayList<>();
+        for (OpenCinemaRoomDTO openCinemaRoomDTO : openCinemaRoomList) {
+            cinemaRoomIdList.add(openCinemaRoomDTO.getOpenCinemaRoomId());
+        }
+
+        // 관ID, 관좌석명, 좌석예매여부
+        List<OpenCinemaRoomSiteDTO> openCinemaRoomSiteList = openCinemaRoomRepository.findOpenCinemaRoomSiteList(cinemaRoomIdList);
+
+        Map<OpenCinemaRoomDTO, List<OpenCinemaRoomSiteDTO>> openCinemaRoomAndSiteList = new HashMap<>();
+
+        // 관PK - 좌석1(좌석예매여부), 좌석2(좌석예매여부) ...
+        for (OpenCinemaRoomDTO openCinemaRoomDTO : openCinemaRoomList) {
+
+            List<OpenCinemaRoomSiteDTO> bulkSiteList = new ArrayList<>();
+
+            for (OpenCinemaRoomSiteDTO openCinemaRoomSiteDTO : openCinemaRoomSiteList) {
+                if (openCinemaRoomDTO.getOpenCinemaRoomId().equals(openCinemaRoomSiteDTO.getOpenCinemaRoomId())) {
+                    bulkSiteList.add(openCinemaRoomSiteDTO);
+                }
+            }
+
+            openCinemaRoomAndSiteList.put(openCinemaRoomDTO, bulkSiteList);
+        }
+        return openCinemaRoomAndSiteList;
+    }
+
 }

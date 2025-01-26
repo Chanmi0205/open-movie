@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,7 @@ public class MovieReserveServiceImpl implements MovieReserveService {
 
     private final MovieReserveRepository movieReserveRepository;
 
+    // FocusController
     @Override
     public void movieReserve(Member member, OpenCinemaRoom openCinemaRoom, List<CinemaRoomSite> cinemaRoomSiteList) {
 
@@ -38,29 +40,38 @@ public class MovieReserveServiceImpl implements MovieReserveService {
 
     }
 
+    // MemberController reserveList
     @Override
     public Page<MovieReserveRoomDTO> memberMovieReserveList(String memberId, boolean openMovieTF, Pageable pageable) {
         return movieReserveRepository.findMovieReserveByMemberId(memberId, openMovieTF, pageable);
     }
 
+    // MemberController reserveList
     @Override
-    public Map<Long, List<MovieReserveSiteDTO>> movieReserveSiteList(String memberId, List<Long> openMovieDateList) {
+    public Map<Long, List<MovieReserveSiteDTO>> movieReserveSiteList(String memberId, Page<MovieReserveRoomDTO> movieReserveRoomDTOList) {
 
-        List<MovieReserveSiteDTO> movieReserveSiteList = movieReserveRepository.findMovieReserveSiteList(memberId, openMovieDateList);
+        List<Long> openCinemaRoomIdList = new ArrayList<>();
 
-        Map<Long, List<MovieReserveSiteDTO>> result = new HashMap<>();
+        for (MovieReserveRoomDTO movieReserveRoomDTO : movieReserveRoomDTOList) {
+            openCinemaRoomIdList.add(movieReserveRoomDTO.getOpenCinemaRoomId());
+        }
 
-        List<MovieReserveSiteDTO> reserveSiteList = new ArrayList<>();
+        List<MovieReserveSiteDTO> movieReserveSiteList = movieReserveRepository.findMovieReserveSiteList(memberId, openCinemaRoomIdList);
 
-        for (Long openCinemaRoomId : openMovieDateList) {
+        Map<Long, List<MovieReserveSiteDTO>> result = new ConcurrentHashMap<>();
+
+        for (Long openCinemaRoomId : openCinemaRoomIdList) {
+
+            List<MovieReserveSiteDTO> reserveSiteList = new ArrayList<>();
+
             for (MovieReserveSiteDTO movieReserveSiteDTO : movieReserveSiteList) {
                 if(openCinemaRoomId.equals(movieReserveSiteDTO.getOpenCinemaRoomId())) {
                     reserveSiteList.add(movieReserveSiteDTO);
                 }
-
             }
             result.put(openCinemaRoomId, reserveSiteList);
         }
+
         return result;
 
     }

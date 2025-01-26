@@ -21,7 +21,6 @@ import pcm.open_movie.controller.form.member.SettingMemberForm;
 import pcm.open_movie.service.MemberService;
 import pcm.open_movie.service.MovieReserveService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -131,7 +130,7 @@ public class MemberController {
         HttpSession session = request.getSession(false);
         String settingMemberId = (String) session.getAttribute(LOGIN_MEMBER_ID);
 
-        Member member = memberService.findMemberById(settingMemberId);
+        Member member = memberService.getMember(settingMemberId);
 
         SettingMemberForm settingMemberForm = new SettingMemberForm();
         settingMemberForm.defaultSetting(member.getMemberId(), member.getMemberName(), member.getPhoneNum());
@@ -184,24 +183,15 @@ public class MemberController {
 
         model.addAttribute("openMovieTF", openMovieTF);
 
-        int pageSize = 7;
-
         HttpSession session = request.getSession(false);
-
         String memberId = (String) session.getAttribute(LOGIN_MEMBER_ID);
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+        Pageable pageable = PageRequest.of(pageNumber - 1, 7);
 
         Page<MovieReserveRoomDTO> movieReserveRoomDTOList = movieReserveService.memberMovieReserveList(memberId, openMovieTF, pageable);
         model.addAttribute("movieReserveRoomDTOList", movieReserveRoomDTOList);
 
-        List<Long> openCinemaRoomIdList = new ArrayList<>();
-
-        for (MovieReserveRoomDTO movieReserveRoomDTO : movieReserveRoomDTOList) {
-            openCinemaRoomIdList.add(movieReserveRoomDTO.getOpenCinemaRoomId());
-        }
-
         Map<Long, List<MovieReserveSiteDTO>> movieReserveSiteList
-                = movieReserveService.movieReserveSiteList(memberId, openCinemaRoomIdList);
+                = movieReserveService.movieReserveSiteList(memberId, movieReserveRoomDTOList);
         model.addAttribute("movieReserveSiteList", movieReserveSiteList);
 
         return "member/reserveList";

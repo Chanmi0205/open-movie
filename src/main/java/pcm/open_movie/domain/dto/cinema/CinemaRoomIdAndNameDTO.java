@@ -1,4 +1,4 @@
-package pcm.open_movie.domain.dto;
+package pcm.open_movie.domain.dto.cinema;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

@@ -4,7 +4,7 @@ import pcm.open_movie.domain.entity.Member;
 
 public interface MemberService {
 
-    Member findMemberById(String memberId);
+    Member getMember(String memberId);
 
     boolean memberExist(String memberId);
 

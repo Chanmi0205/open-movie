@@ -18,7 +18,8 @@ public interface OpenMovieService {
 
     Optional<OpenMovie> openMovieById(Long openMovieId);
 
-    List<OpenCinemaDateDTO> openCinemaDateList(Long openMovieId);
+    Map<Long, List<OpenCinemaDateDTO>> openCinemaDateList
+            (Long openMovieId, List<OpenCinemaDTO> openCinemaList);
 
     List<OpenCinemaDTO> openCinemaList(Long openMovieId);
 
@@ -28,9 +29,9 @@ public interface OpenMovieService {
 
     List<CinemaRoomSite> cinemaRoomSiteList(List<Long> cinemaRoomSiteIdList);
 
-    Map<Long, List<OpenCinemaRoomDateTimeDTO>> findOpenCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId);
+    Map<Long, List<OpenCinemaRoomDateTimeDTO>> openCinemaRoomList(Long openMovieId, String openMovieDate, Long cinemaId);
 
-    Map<Long, List<OpenCinemaRoomSiteStatusDTO>> findOpenCinemaRoomSiteStatusList(List<Long> openCinemaRoomIdList);
+    Map<Long, List<OpenCinemaRoomSiteStatusDTO>> openCinemaRoomSiteStatusList(Map<Long, List<OpenCinemaRoomDateTimeDTO>> openCinemaRoomList);
 
     List<ReserveOpenCinemaRoomDTO> openCinemaRoomSiteList(Long openCinemaRoomId);
 
