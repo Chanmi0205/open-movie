@@ -138,10 +138,6 @@ public class OpenMovieServiceImpl implements OpenMovieService {
             }
         }
 
-        for (Long openCinemaRoomId : openCinemaRoomIdList) {
-            System.out.println("openCinemaRoomId = " + openCinemaRoomId);
-        }
-
         List<OpenCinemaRoomSiteStatusDTO> openCinemaRoomSiteStatusList
                 = openCinemaRoomRepository.findOpenCinemaRoomSiteStatusList(openCinemaRoomIdList);
 

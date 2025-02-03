@@ -21,12 +21,12 @@
                 <a th:href="@{/focus/findCinema}">영화관 좌석 미리보기</a>
             </div>
 
-            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
+            <div class="set1_header_menu2_ver1" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
                 <a th:href="@{/member/signUp}" class="set1_header_menu2_signUp">회원가입</a>
                 <a th:href="@{/member/login}">로그인</a>
             </div>
 
-            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
+            <div class="set1_header_menu2_ver2" th:if="${session.get('loginMemberId') != null}">
                 <a th:href="@{/member/quit}">탈퇴</a>
                 <a th:href="@{/member/reserveList?openMovieTF=false}">관람 내역</a>
                 <a th:href="@{/member/reserveList?openMovieTF=true}">예매 내역</a>
@@ -126,7 +126,7 @@
 
             let openCinemaRoomInput = document.createElement("input");
             openCinemaRoomInput.type = "radio";
-            openCinemaRoomInput.id = openCinemaRoom.cinemaRoomName;
+            openCinemaRoomInput.id = openCinemaRoom.openCinemaRoomId;
             openCinemaRoomInput.name = "openCinemaRoomId";
             openCinemaRoomInput.value = openCinemaRoom.openCinemaRoomId;
             openCinemaRoomInput.onclick = function() {
@@ -134,7 +134,7 @@
             };
 
             let openCinemaRoomLabel = document.createElement("label");
-            openCinemaRoomLabel.for = openCinemaRoom.cinemaRoomName;
+            openCinemaRoomLabel.htmlFor = openCinemaRoom.openCinemaRoomId;
             openCinemaRoomLabel.innerText = openCinemaRoom.cinemaRoomName + ") " + openCinemaRoom.openCinemaRoomStartDateTimeText;
             contentSet4_menu3_dateAndTime.appendChild(openCinemaRoomInput);
             contentSet4_menu3_dateAndTime.appendChild(openCinemaRoomLabel);
@@ -142,15 +142,17 @@
             contentSet4_menu3_cinemaRoomList.insertBefore(contentSet4_menu3_dateAndTime, null);
         }
 
-        // 여기서부터
+        // 수정해야 할 부분
         const contentSet4_menu2_siteList = document.getElementById('contentSet4_menu2_siteList');
 
         const openCinemaRoomSiteStatusList = `[[${openCinemaRoomSiteStatusList}]]`;
         const changeOpenCinemaRoomSiteStatusList = JSON.parse(openCinemaRoomSiteStatusList);
+        console.log(changeOpenCinemaRoomSiteStatusList);
 
         function findOpenCinemaRoomSiteStatus(openCinemaRoomId) {
 
-            const getOpenCinemaRoomSiteStatus = changeOpenCinemaRoomSiteStatusList[openCinemaRoomId];
+            let changeOpenCinemaRoomId = String(openCinemaRoomId);
+            const getOpenCinemaRoomSiteStatus = changeOpenCinemaRoomSiteStatusList[changeOpenCinemaRoomId];
 
             contentSet4_menu2_siteList.innerHTML = '';
 

@@ -116,7 +116,8 @@ public class MemberController {
             bindingResult.rejectValue("memberId", "PWNotSame");
 
         if (bindingResult.hasErrors()) return "member/quit";
-
+        
+        // 중속되어 있는 경우도 생각
         memberService.memberQuit(quitMemberForm.getMemberId());
         HttpSession session = request.getSession(false);
         session.removeAttribute(LOGIN_MEMBER_ID);
@@ -185,7 +186,8 @@ public class MemberController {
 
         HttpSession session = request.getSession(false);
         String memberId = (String) session.getAttribute(LOGIN_MEMBER_ID);
-        Pageable pageable = PageRequest.of(pageNumber - 1, 7);
+
+        Pageable pageable = PageRequest.of(pageNumber - 1, 6);
 
         Page<MovieReserveRoomDTO> movieReserveRoomDTOList = movieReserveService.memberMovieReserveList(memberId, openMovieTF, pageable);
         model.addAttribute("movieReserveRoomDTOList", movieReserveRoomDTOList);

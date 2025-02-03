@@ -11,12 +11,12 @@ public class OpenCinemaRoomSiteStatusDTO {
 
     private Long openCinemaRoomId;
     private String openCinemaRoomSite;
-    private String openCinemaRoomStatus;
+    private Long openCinemaRoomStatus;
 
     public OpenCinemaRoomSiteStatusDTO() {
     }
 
-    public OpenCinemaRoomSiteStatusDTO(Long openCinemaRoomId, String openCinemaRoomSite, String openCinemaRoomStatus) {
+    public OpenCinemaRoomSiteStatusDTO(Long openCinemaRoomId, String openCinemaRoomSite, Long openCinemaRoomStatus) {
         this.openCinemaRoomId = openCinemaRoomId;
         this.openCinemaRoomSite = openCinemaRoomSite;
         this.openCinemaRoomStatus = openCinemaRoomStatus;

@@ -20,6 +20,8 @@ public class MovieReserveRoomDTO {
     private String cinemaName;
     private String cinemaRoomName;
 
+    private String openMovieDateText;
+
     public MovieReserveRoomDTO() {
     }
 

@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import pcm.open_movie.domain.dto.MovieReserveDTO;
@@ -51,13 +52,15 @@ public class MovieReserveRepositoryCustomImpl implements MovieReserveRepositoryC
                 .orderBy(openCinemaRoom.openMovieDate.desc())
                 .fetch();
 
-        JPAQuery<Long> count = queryFactory.select(movieReserve.count())
+            // 수정해야 할 부분
+            long count = queryFactory.select(movieReserve.openCinemaRoom)
                 .from(movieReserve)
                 .leftJoin(movieReserve.openCinemaRoom, openCinemaRoom)
-                .distinct()
-                .where(movieReserve.member.memberId.eq(memberId), dateStatus(openMovieTF));
+                .where(movieReserve.member.memberId.eq(memberId), dateStatus(openMovieTF))
+                .groupBy(movieReserve.openCinemaRoom)
+                .fetchCount();
 
-        return PageableExecutionUtils.getPage(content, pageable, count::fetchOne);
+        return new PageImpl<>(content, pageable, count);
     }
 
     private BooleanExpression dateStatus(boolean openMovieTF) {

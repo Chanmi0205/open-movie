@@ -20,12 +20,12 @@
                 <a th:href="@{/focus/findCinema}">영화관 좌석 미리보기</a>
             </div>
 
-            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
+            <div class="set1_header_menu2_ver1" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
                 <a th:href="@{/member/signUp}" class="set1_header_menu2_signUp">회원가입</a>
                 <a th:href="@{/member/login}">로그인</a>
             </div>
 
-            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
+            <div class="set1_header_menu2_ver2" th:if="${session.get('loginMemberId') != null}">
                 <a th:href="@{/member/quit}">탈퇴</a>
                 <a th:href="@{/member/reserveList?openMovieTF=false}">관람 내역</a>
                 <a th:href="@{/member/reserveList?openMovieTF=true}">예매 내역</a>
@@ -42,9 +42,10 @@
 
         <div class="contentSet1">
 
-            <div th:each="openMovie : ${openMovieList}" class="contentSet1_menu">
+            <div th:each="openMovie : ${openMovieList}" class="contentSet1_menu" th:onclick="|location.href='@{focus/{openMovieId}(openMovieId=${openMovie.openMovieId})}'|" >
                 <img th:src="@{/static/img/{openMoviePath}.png(openMoviePath=${openMovie.openMoviePostPath})}" class="movie_img"/>
-                <a th:href="@{focus/{openMovieId}(openMovieId=${openMovie.openMovieId})}" th:text="${openMovie.openMovieTitle}"></a>
+                <a th:href="@{focus/{openMovieId}(openMovieId=${openMovie.openMovieId})}" th:text="${openMovie.openMovieTitle}">
+                </a>
             </div>
 
         </div>

@@ -16,6 +16,7 @@ import pcm.open_movie.repository.member.MovieReserveRepository;
 import pcm.open_movie.service.MovieReserveService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +44,11 @@ public class MovieReserveServiceImpl implements MovieReserveService {
     // MemberController reserveList
     @Override
     public Page<MovieReserveRoomDTO> memberMovieReserveList(String memberId, boolean openMovieTF, Pageable pageable) {
-        return movieReserveRepository.findMovieReserveByMemberId(memberId, openMovieTF, pageable);
+        Page<MovieReserveRoomDTO> movieReserveList = movieReserveRepository.findMovieReserveByMemberId(memberId, openMovieTF, pageable);
+        for (MovieReserveRoomDTO movieReserveRoomDTO : movieReserveList) {
+            movieReserveRoomDTO.setOpenMovieDateText(movieReserveRoomDTO.getOpenMovieDate().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일  HH시 mm분")));
+        }
+        return movieReserveList;
     }
 
     // MemberController reserveList

@@ -20,12 +20,12 @@
                 <a th:href="@{/focus/findCinema}">영화관 좌석 미리보기</a>
             </div>
 
-            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
+            <div class="set1_header_menu2_ver1" th:if="${session.get('loginMemberId') == null || session.get('loginMemberId') == ''}">
                 <a th:href="@{/member/signUp}" class="set1_header_menu2_signUp">회원가입</a>
                 <a th:href="@{/member/login}">로그인</a>
             </div>
 
-            <div class="set1_header_menu2" th:if="${session.get('loginMemberId') != null}">
+            <div class="set1_header_menu2_ver2" th:if="${session.get('loginMemberId') != null}">
                 <a th:href="@{/member/quit}">탈퇴</a>
                 <a th:href="@{/member/reserveList?openMovieTF=false}">관람 내역</a>
                 <a th:href="@{/member/reserveList?openMovieTF=true}">예매 내역</a>
@@ -35,6 +35,7 @@
         </div>
 
     </header>
+
 
     <main class="set2_main">
 
@@ -102,27 +103,26 @@
 
         console.log(findOpenDateList);
 
-        let openCinemaHiddenInput = document.createElement("input");
-        openCinemaHiddenInput.type = "hidden";
+        let openCinemaHiddenInput = document.createElement('input');
+        openCinemaHiddenInput.type = 'hidden';
         openCinemaHiddenInput.value = changeOpenCinema;
-        openCinemaHiddenInput.name = "cinemaId";
+        openCinemaHiddenInput.name = 'cinemaId';
         contentSet3_menu2_cinemaList.insertBefore(openCinemaHiddenInput, null);
 
         for (let openCinemaDateDTO of findOpenDateList) {
 
-            let contentSet3_menu2_cinema = document.createElement("div");
+            let contentSet3_menu2_cinema = document.createElement('div');
             contentSet3_menu2_cinema.className='contentSet3_menu2_cinema';
 
-            let openDateInput = document.createElement("input");
-            openDateInput.type = "radio";
+            let openDateInput = document.createElement('input');
+            openDateInput.type = 'radio';
             openDateInput.id = openCinemaDateDTO.openMovieDateFormat;
-            openDateInput.name = "reserveDate";
+            openDateInput.name = 'reserveDate';
             openDateInput.value = openCinemaDateDTO.openMovieDateFormat;
 
-            let openDateLabel = document.createElement("label");
-            openDateLabel.for = openCinemaDateDTO.openMovieDateFormat;
-            openDateLabel.innerText = openCinemaDateDTO.cinemaAddress
-                + " " + openCinemaDateDTO.cinemaName + " " + openCinemaDateDTO.openMovieDateFormat;
+            let openDateLabel = document.createElement('label');
+            openDateLabel.htmlFor = openCinemaDateDTO.openMovieDateFormat;
+            openDateLabel.innerText = openCinemaDateDTO.cinemaAddress + ', ' + openCinemaDateDTO.cinemaName + ' | ' + openCinemaDateDTO.openMovieDateFormat;
 
             contentSet3_menu2_cinema.appendChild(openDateInput);
             contentSet3_menu2_cinema.appendChild(openDateLabel);

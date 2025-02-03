@@ -5,7 +5,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+// 수정해야 할 부분
+//@Configuration
 public class WebConfig implements WebMvcConfigurer {
 
     @Override

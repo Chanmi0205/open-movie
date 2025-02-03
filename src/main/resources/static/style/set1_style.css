@@ -64,11 +64,22 @@ img {
     grid-column: 1/2;
 }
 
-.set1_header_menu2 {
+.set1_header_menu2_ver2 {
     grid-row: 1/2;
     grid-column: 2/3;
     display: flex;
     justify-content: space-between;
+}
+
+.set1_header_menu2_ver1 {
+    grid-row: 1/2;
+    grid-column: 2/3;
+    display: flex;
+    justify-content: end;
+}
+
+.set1_header_menu2_ver1 a {
+    margin-left: 120px;
 }
 
 .set1_header_menu2_signUp {
