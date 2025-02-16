@@ -31,7 +31,7 @@ public class MemberServiceImpl implements MemberService {
     // MemberController login, MemberController quitMember
     @Override
     public boolean memberExist(String memberId, String password) {
-        return !memberRepository.memberExists(memberId, password);
+        return memberRepository.memberExists(memberId, password);
     }
 
     // MemberController signUp

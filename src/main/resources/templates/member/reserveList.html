@@ -52,7 +52,9 @@
                         <p th:each="movieReserveSite : ${movieReserveSiteList.get(movieReserveRoomDTO.getOpenCinemaRoomId())}"
                            th:text="${movieReserveSite.cinemaRoomSiteName}">A-1 A-2 A-3</p>
                     </div>
-                    <a href="" class="contentSet6_menu_reserveRollback">예매 취소</a>
+                    <a th:if="${openMovieTF} == true"
+                       th:href="@{/member/reserveList/cancel(openCinemaRoomId=${movieReserveRoomDTO.getOpenCinemaRoomId()})}"
+                       class="contentSet6_menu_reserveRollback">예매 취소</a>
                 </div>
 
             </div>
@@ -71,14 +73,12 @@
 
     </main>
 
-
     <footer class="set1_footer">
 
         <a href="">도움말 | </a>
         <a href="">개발자 프로필</a>
 
     </footer>
-
 
     <script th:inline="javascript" language="JavaScript">
 

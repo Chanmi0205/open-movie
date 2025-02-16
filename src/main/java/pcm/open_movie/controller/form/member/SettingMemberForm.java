@@ -14,9 +14,11 @@ import org.hibernate.validator.constraints.Range;
 @Setter
 public class SettingMemberForm {
 
+    @NotBlank
     @Size(min = 5, max = 20)
     private String memberId;
 
+    @NotBlank
     @Size(min = 5, max = 30)
     private String memberName;
     private String password;

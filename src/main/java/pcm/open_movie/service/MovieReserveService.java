@@ -20,4 +20,7 @@ public interface MovieReserveService {
     Page<MovieReserveRoomDTO> memberMovieReserveList(String memberId, boolean openMovieTF, Pageable pageable);
 
     Map<Long, List<MovieReserveSiteDTO>> movieReserveSiteList(String memberId, Page<MovieReserveRoomDTO> movieReserveRoomDTOList);
+
+    void cancel(Long openCinemaRoomId);
+
 }

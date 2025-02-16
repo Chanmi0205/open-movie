@@ -124,7 +124,7 @@ public class FocusController {
             return "redirect:/focus/" + openMovieId + "/cinema?cinemaId="
                     + cinemaId + "&reserveDate=" + reserveDate + "&openCinemaRoomIdNull=true";
 
-        if(cinemaRoomSiteIdNull != null) {
+        if(cinemaRoomSiteIdNull != null && cinemaRoomSiteIdNull.equals("true")) {
             String cinemaRoomSiteIdNull_errorText = "좌석을 선택해 주십시오.";
             model.addAttribute("cinemaRoomSiteIdNull_errorText", cinemaRoomSiteIdNull_errorText);
         }
@@ -148,11 +148,13 @@ public class FocusController {
     @PostMapping("/{openMovieId}/cinemaRoomSite")
     public String openCinemaRoomSiteReserve(@PathVariable("openMovieId") Long openMovieId,
                                             @RequestParam(value = "openCinemaRoomId", required = false) Long openCinemaRoomId,
+                                            @RequestParam(value = "cinemaId", required = false) Long cinemaId,
+                                            @RequestParam(value = "reserveDate", required = false) String reserveDate,
                                             @RequestParam(value = "cinemaRoomSiteIdList", required = false) List<Long> cinemaRoomSiteIdList,
                                             HttpServletRequest request) {
 
         if (cinemaRoomSiteIdList == null) return "redirect:/focus/" + openMovieId
-                + "/cinemaRoom?openCinemaRoomId=" + openCinemaRoomId + "&cinemaRoomSiteIdNull=true";
+                + "/cinemaRoom?openCinemaRoomId=" + openCinemaRoomId + "&cinemaId=" + cinemaId + "&reserveDate=" + reserveDate + "&cinemaRoomSiteIdNull=true";
 
         OpenCinemaRoom openCinemaRoom = openMovieService.openCinemaRoomById(openCinemaRoomId);
         List<CinemaRoomSite> cinemaRoomSiteList = openMovieService.cinemaRoomSiteList(cinemaRoomSiteIdList);

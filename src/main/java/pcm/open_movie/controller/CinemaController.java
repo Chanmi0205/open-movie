@@ -31,10 +31,12 @@ public class CinemaController {
     // cinema
     // 관 정보, 좌석 정보 1 : N
     @PostMapping
-    public String cinemaRoomAndSiteList(@RequestParam("findCinemaId") Long findCinemaId, Model model) {
+    public String cinemaRoomAndSiteList(@RequestParam(value = "findCinemaId", required = false) Long findCinemaId, Model model) {
 
         List<Cinema> cinemaList = cinemaService.cinemaList();
         model.addAttribute("cinemaList", cinemaList);
+
+        if (findCinemaId == null) return "focus/findCinema/cinemaSearch";
 
         Cinema findCinema = cinemaService.getCinema(findCinemaId);
         List<CinemaRoomIdAndNameDTO> cinemaRoomList = cinemaService.cinemaRoomList(findCinemaId);

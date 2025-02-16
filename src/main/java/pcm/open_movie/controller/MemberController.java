@@ -111,9 +111,10 @@ public class MemberController {
                              BindingResult bindingResult, @RequestParam(value = "redirectURI", defaultValue = "/focus") String redirectURI,
                              HttpServletRequest request) {
 
-        // 회원 아이디와 비밀번호가 일치하는 데이터가 없는 경우
-        if(!memberService.memberExist(quitMemberForm.getMemberId(), quitMemberForm.getPassword()))
-            bindingResult.rejectValue("memberId", "PWNotSame");
+        if (quitMemberForm.getPassword().isBlank()
+        || !quitMemberForm.getPassword().equals(quitMemberForm.getCheckPassword())
+        || !memberService.memberExist(quitMemberForm.getMemberId(), quitMemberForm.getPassword()))
+            bindingResult.rejectValue("memberId", "pwNotSame");
 
         if (bindingResult.hasErrors()) return "member/quit";
         
@@ -153,9 +154,9 @@ public class MemberController {
 
         // 비밀번호 또한 변경하려 할 때, 비밀번호를 두 번 입력하였는지, 입력한 두 비밀번호가 일치하는지
         else if(settingMemberForm.getPassword() == null || settingMemberForm.getCheckPassword() == null ||
-                settingMemberForm.getPassword().isEmpty() || settingMemberForm.getCheckPassword().isEmpty() ||
+                settingMemberForm.getPassword().isBlank() || settingMemberForm.getCheckPassword().isBlank() ||
                 !settingMemberForm.getPassword().equals(settingMemberForm.getCheckPassword())) {
-            bindingResult.rejectValue("password", "passwordNull");
+            bindingResult.rejectValue("password", "pwNull");
         } else {
             memberService.memberSetting
                     (settingMemberForm.getMemberId(), settingMemberForm.getMemberName(), settingMemberForm.getPhoneNum(), settingMemberForm.getPassword());
@@ -198,5 +199,14 @@ public class MemberController {
 
         return "member/reserveList";
     }
+
+    @GetMapping("/reserveList/cancel")
+    public String cancel(@RequestParam(value = "openCinemaRoomId") Long openCinemaRoomId) {
+
+        movieReserveService.cancel(openCinemaRoomId);
+        return "redirect:/member/reserveList?openMovieTF=true";
+
+    }
+
 
 }

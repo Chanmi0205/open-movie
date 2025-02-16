@@ -1,6 +1,7 @@
 package pcm.open_movie.repository.member;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -22,5 +23,9 @@ public interface MovieReserveRepository extends JpaRepository<MovieReserve, Long
             "WHERE mr.member.memberId = :memberId")
     List<MovieReserveSiteDTO> findMovieReserveSiteList
             (@Param("memberId") String memberId, @Param("openCinemaRoomIdList") List<Long> openCinemaRoomIdList);
+
+    @Modifying
+    @Query("DELETE FROM MovieReserve mr WHERE mr.openCinemaRoom.openCinemaRoomId = :openCinemaRoomId")
+    void deleteMovieReserve(@Param("openCinemaRoomId") Long openCinemaRoomId);
 
 }

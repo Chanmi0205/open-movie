@@ -397,6 +397,7 @@ img {
 .contentSet5_menu2_siteList {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .contentSet5_menu2_siteName {
@@ -460,6 +461,7 @@ img {
     grid-column: 1/2;
     width: 100%;
     display: flex;
+    flex-wrap: nowrap;
 }
 
 .contentSet6_menu_siteList p {

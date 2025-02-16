@@ -81,4 +81,9 @@ public class MovieReserveServiceImpl implements MovieReserveService {
 
     }
 
+    @Override
+    public void cancel(Long openCinemaRoomId) {
+        movieReserveRepository.deleteMovieReserve(openCinemaRoomId);
+    }
+
 }
